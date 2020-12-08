@@ -242,12 +242,14 @@ int main() {
 				&selectedFigure->position[0], 0, 7);
 			ImGui::SliderInt("pionek y",
 				&selectedFigure->position[1], 0, 7);
-			const char* playerNameBuffer = selectedFigure->player ? "blacc" : "white";
-			char* playerName = new char[6];
-			for (uint8_t i = 0; i < 6; ++i)
-				playerName[i] = playerNameBuffer[i];
-			ImGui::InputText("pionek player", playerName, 6);
-			delete[] playerName;
+			{
+				const char* playerNameBuffer = selectedFigure->player ? "blacc" : "white";
+				char* playerName = new char[6];
+				for (uint8_t i = 0; i < 6; ++i)
+					playerName[i] = playerNameBuffer[i];
+				ImGui::InputText("pionek player", playerName, 6);
+				delete[] playerName;
+			}
 			ImGui::EndGroup();
 
 			ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
