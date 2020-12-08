@@ -55,7 +55,3 @@ GLint Shader::getUniformLocation(const std::string& name) const {
 
     return location;
 }
-
-void Shader::setUniform1iv(const std::string& name, int* value, size_t size) {
-    glUniform1iv(getUniformLocation(name), size, value);
-}

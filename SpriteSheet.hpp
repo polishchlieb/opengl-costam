@@ -8,6 +8,7 @@
 struct SpriteSheetQuad {
 	unsigned int index;
 	glm::vec2 pos1, pos2, pos3, pos4;
+	bool invert = false;
 };
 
 class SpriteSheet {

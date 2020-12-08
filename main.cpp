@@ -108,6 +108,7 @@ int main() {
 	layout.push(GL_FLOAT, 4); // rgba color
 	layout.push(GL_FLOAT, 2); // texcoords
 	layout.push(GL_FLOAT, 1); // texture id
+	layout.push(GL_FLOAT, 1); // invert?
 	va.addBuffer(vb, layout);
 
 	Buffer ib{ GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size() * sizeof(unsigned int), GL_STATIC_DRAW };
@@ -137,7 +138,7 @@ int main() {
 	std::array<int, textures.size()> samplers;
 	for (uint16_t i = 0; i < textures.size(); ++i)
 		samplers[i] = i;
-	shader.setUniform1iv("u_Textures", samplers.data(), samplers.size());
+	shader.setUniform1iv("u_Textures", samplers);
 
 	ImGui::CreateContext();
 
@@ -152,6 +153,7 @@ int main() {
 	Renderer renderer;
 
 	Chessboard chessboard;
+	Figure* selectedFigure = &chessboard.figures[0];
 	while (!glfwWindowShouldClose(window)) {
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -193,14 +195,15 @@ int main() {
 					case FigureType::pawn: index = 7; break;
 				}
 
-				const auto [x, y] = figure.position;
+				const auto& [x, y] = figure.position;
 
 				quads.push_back({
 					index,
 					{x * 64.0f + 11.0f, y * 64.0f + 11.0f},
 					{x * 64.0f + 11.0f + 42.0f, y * 64.0f + 11.0f},
 					{x * 64.0f + 11.0f + 42.0f, y * 64.0f + 11.0f + 42.0f},
-					{x * 64.0f + 11.0f, y * 64.0f + 11.0f + 42.0f}
+					{x * 64.0f + 11.0f, y * 64.0f + 11.0f + 42.0f},
+					figure.player
 				});
 			}
 
@@ -222,16 +225,30 @@ int main() {
 			ImGui::SliderFloat("camera y", &view[3][1], 0.0f, 540.0f);
 			ImGui::EndGroup();
 
+			ImGui::BeginGroup();
 			ImGui::Text("fun");
 			ImGui::SliderInt("fun", &fun, 0, 255);
-			ImGui::SliderFloat("x", &x, 0, 960);
-			ImGui::SliderFloat("y", &y, 0, 540);
+			ImGui::EndGroup();
+			
+			ImGui::BeginGroup();
+			ImGui::Text("cursor position (clicc to refresh)");
+			ImGui::SliderFloat("cursor x", &x, 0, 960);
+			ImGui::SliderFloat("cursor y", &y, 0, 540);
+			ImGui::EndGroup();
 
+			ImGui::BeginGroup();
 			ImGui::Text("pionek");
 			ImGui::SliderInt("pionek x",
-				&chessboard.figures[0].position[0], 0, 7);
+				&selectedFigure->position[0], 0, 7);
 			ImGui::SliderInt("pionek y",
-				&chessboard.figures[0].position[1], 0, 7);
+				&selectedFigure->position[1], 0, 7);
+			const char* playerNameBuffer = selectedFigure->player ? "blacc" : "white";
+			char* playerName = new char[6];
+			for (uint8_t i = 0; i < 6; ++i)
+				playerName[i] = playerNameBuffer[i];
+			ImGui::InputText("pionek player", playerName, 6);
+			delete[] playerName;
+			ImGui::EndGroup();
 
 			ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
 			ImGui::End();
@@ -257,7 +274,7 @@ int main() {
 
 			for (auto& figure : chessboard.figures) {
 				if (figure.contains(x, 540.0f - y)) {
-					++figure.position[1];
+					selectedFigure = &figure;
 				}
 			}
 		}

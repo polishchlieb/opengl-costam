@@ -25,24 +25,28 @@ void SpriteSheet::draw(const std::vector<SpriteSheetQuad>& quads, const Buffer& 
 		v0.texCoords = { textureX, textureY };
 		v0.color = {0.0f, 0.0f, 0.0f, 0.0f};
 		v0.textureId = static_cast<float>(id);
+		v0.invert = quad.invert ? 1.0f : 0.0f;
 
 		Vertex v1{};
 		v1.position = quad.pos2;
 		v1.texCoords = { textureX + dx, textureY };
 		v1.color = { 0.0f, 0.0f, 0.0f, 0.0f };
 		v1.textureId = static_cast<float>(id);
+		v1.invert = quad.invert ? 1.0f : 0.0f;
 
 		Vertex v2{};
 		v2.position = quad.pos3;
 		v2.texCoords = { textureX + dx, textureY + dy };
 		v2.color = { 0.0f, 0.0f, 0.0f, 0.0f };
 		v2.textureId = static_cast<float>(id);
+		v2.invert = quad.invert ? 1.0f : 0.0f;
 
 		Vertex v3{};
 		v3.position = quad.pos4;
 		v3.texCoords = { textureX, textureY + dy };
 		v3.color = { 0.0f, 0.0f, 0.0f, 0.0f };
 		v3.textureId = static_cast<float>(id);
+		v3.invert = quad.invert ? 1.0f : 0.0f;
 
 		std::array<Vertex, 4> currentVertices = { v0, v1, v2, v3 };
 		memcpy(

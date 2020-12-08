@@ -10,13 +10,15 @@ struct Vertex {
     glm::vec4 color;
     glm::vec2 texCoords;
     float textureId;
+    float invert = 0.0f;
 };
 
 class Quad {
 public:
     Quad(
         glm::vec2 pos1, glm::vec2 pos2, glm::vec2 pos3, glm::vec2 pos4,
-        glm::vec4 color, const Texture& texture, int offset = 0
+        glm::vec4 color, const Texture& texture, int offset = 0,
+        bool invert = false
     );
     Quad() = default;
 

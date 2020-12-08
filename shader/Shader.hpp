@@ -18,7 +18,10 @@ public:
     void validate() const;
 
     void setUniform1i(const std::string& name, int value);
-    void setUniform1iv(const std::string& name, int* value, size_t size);
+    template<size_t size>
+    void setUniform1iv(const std::string& name, std::array<int, size>& array) {
+        glUniform1iv(getUniformLocation(name), array.size(), array.data());
+    }
     void setUniform4f(const std::string& name, float f0, float f1, float f2, float f3);
     void setUniformMat4f(const std::string& name, const glm::mat4& matrix);
 private:

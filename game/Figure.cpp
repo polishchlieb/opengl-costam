@@ -1,7 +1,7 @@
 #include "Figure.hpp"
 
-Figure::Figure(FigureType type, uint8_t x, uint8_t y)
-	: position({x, y}), type(type) {}
+Figure::Figure(FigureType type, uint8_t x, uint8_t y, Player player)
+	: position({x, y}), type(type), player(player) {}
 
 void Figure::move(int dx, int dy) {
 	position[0] += dx;
