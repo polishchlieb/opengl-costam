@@ -1,7 +1,7 @@
 #include <glad/glad.h>
 #include <iostream>
 #include "Texture.hpp"
-#include "vendor/stb_image/stb_image.h"
+#include <stb_image.h>
 
 Texture::Texture(std::string path)
     : filePath(std::move(path)), localBuffer(nullptr),

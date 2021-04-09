@@ -12,9 +12,9 @@ public:
     void bind() const;
     void unbind() const;
 
-    void setData(const void* data, unsigned int size);
+    void setData(const void* data, unsigned int size) const;
 
-    [[nodiscard]] unsigned int getSize();
+    [[nodiscard]] unsigned int getSize() const;
     [[nodiscard]] unsigned int getId() const {
         return id;
     }

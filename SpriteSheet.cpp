@@ -56,8 +56,8 @@ void SpriteSheet::draw(const std::vector<SpriteSheetQuad>& quads, const Buffer& 
 		);
 	}
 
-	glBindBuffer(GL_ARRAY_BUFFER, vb.getId());
-	glBufferSubData(GL_ARRAY_BUFFER, 0, quads.size() * 4 * sizeof(Vertex), vertices);
+	vb.bind();
+	vb.setData(vertices, quads.size() * 4 * sizeof(Vertex));
 	delete[] vertices;
 	
 	// 6 is the element count of one quad

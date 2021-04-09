@@ -23,7 +23,7 @@ void Shader::validate() const {
     glValidateProgram(program);
 }
 
-void Shader::bind() const {
+void Shader::bind() {
     glUseProgram(program);
 }
 
@@ -31,7 +31,7 @@ void Shader::setUniform4f(const std::string& name, float f0, float f1, float f2,
     glUniform4f(getUniformLocation(name), f0, f1, f2, f3);
 }
 
-void Shader::unbind() const {
+void Shader::unbind() {
     glUseProgram(0);
 }
 

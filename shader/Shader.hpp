@@ -12,8 +12,8 @@ public:
     ~Shader();
 
     void attach(const ShaderComponent& component);
-    void bind() const;
-    void unbind() const;
+    void bind();
+    void unbind();
     void link() const;
     void validate() const;
 
@@ -26,6 +26,7 @@ public:
     void setUniformMat4f(const std::string& name, const glm::mat4& matrix);
 private:
     unsigned int program;
+    bool bound = false;
 
     mutable std::unordered_map<std::string, GLint> uniformLocationCache;
     GLint getUniformLocation(const std::string& name) const;

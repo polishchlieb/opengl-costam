@@ -25,13 +25,12 @@ void Buffer::unbind() const {
     glBindBuffer(type, 0);
 }
 
-unsigned int Buffer::getSize() {
+unsigned int Buffer::getSize() const {
     return size;
 }
 
-void Buffer::setData(const void* data, unsigned int size) {
-    glBindBuffer(GL_ARRAY_BUFFER, id);
-    glBufferData(GL_ARRAY_BUFFER, size, data, usage);
+void Buffer::setData(const void* data, unsigned int size) const {
+    glBufferSubData(type, 0, size, data);
 }
 
 Buffer::Buffer() = default;

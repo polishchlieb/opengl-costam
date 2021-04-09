@@ -6,9 +6,9 @@
 #include "VertexArray.hpp"
 #include "Texture.hpp"
 
-#include "vendor/imgui/imgui.h"
-#include "vendor/imgui/imgui_impl_glfw.h"
-#include "vendor/imgui/imgui_impl_opengl3.h"
+#include <imgui/imgui.h>
+#include <imgui/imgui_impl_glfw.h>
+#include <imgui/imgui_impl_opengl3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -16,8 +16,9 @@
 #include "Quad.hpp"
 #include "Renderer.hpp"
 #include "SpriteSheet.hpp"
+#include <map>
 
-#include "game/Chessboard.hpp"
+#include "Camera.hpp"
 
 static void dumpOpenGLMessage(
 	unsigned int source, unsigned int type, unsigned int id,
@@ -47,7 +48,7 @@ int main() {
 
 	/* Initialize the library */
 	if (!glfwInit())
-		return -1;
+		return EXIT_FAILURE;
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -57,7 +58,7 @@ int main() {
 	window = glfwCreateWindow(960, 540, "nigga world", nullptr, nullptr);
 	if (!window) {
 		glfwTerminate();
-		return -1;
+		return EXIT_FAILURE;
 	}
 
 	/* Make the window's context current */
@@ -66,7 +67,7 @@ int main() {
 
 	if (!gladLoadGL()) {
 		std::cout << "kaplica!" << std::endl;
-		return 1;
+		return EXIT_FAILURE;
 	}
 
 	std::cout << "wersyja: " << GLVersion.major << "." << GLVersion.minor << std::endl;
@@ -78,30 +79,12 @@ int main() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	constexpr size_t quadCount = 64 + 16 * 2;
-
-	std::array<unsigned int, 6 * quadCount> indices;
-	for (size_t i = 0; i < quadCount; ++i) {
-		indices[i * 6] = i * 4;
-		indices[i * 6 + 1] = i * 4 + 1;
-		indices[i * 6 + 2] = i * 4 + 2;
-		indices[i * 6 + 3] = i * 4 + 2;
-		indices[i * 6 + 4] = i * 4 + 3;
-		indices[i * 6 + 5] = i * 4;
-	}
-
-	std::array<Texture, 1> textures = {
-		Texture{"res/textures/spritesheet.png"}
-	};
-	const Texture& spriteSheetTexture = textures[0];
-
-	SpriteSheet spriteSheet{
-		{64, 64},
-		spriteSheetTexture
+	std::array<Texture, 2> textures = {
+		Texture{"res/textures/axajser.png"},
+		Texture{"res/textures/breadoggo.png"}
 	};
 
 	VertexArray va;
-
 	Buffer vb{ GL_ARRAY_BUFFER, nullptr, sizeof(Vertex) * 1000, GL_DYNAMIC_DRAW };
 	VertexBufferLayout layout;
 	layout.push(GL_FLOAT, 2); // position
@@ -111,13 +94,23 @@ int main() {
 	layout.push(GL_FLOAT, 1); // invert?
 	va.addBuffer(vb, layout);
 
+	std::array<unsigned int, 6000> indices;
+	for (size_t i = 0; i < 990; ++i) {
+		indices[i * 6] = i * 4;
+		indices[i * 6 + 1] = i * 4 + 1;
+		indices[i * 6 + 2] = i * 4 + 2;
+		indices[i * 6 + 3] = i * 4 + 2;
+		indices[i * 6 + 4] = i * 4 + 3;
+		indices[i * 6 + 5] = i * 4;
+	}
 	Buffer ib{ GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size() * sizeof(unsigned int), GL_STATIC_DRAW };
 
 	glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+	Camera2D camera{glm::vec2{-480.f, -270.f}, 2.f};
+	// glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0, 0));
 
-	glm::mat4 mvp = proj * view * model;
+	glm::mat4 mvp = proj * camera.calculateViewMatrix() * model;
 
 	Shader shader;
 	shader.attach(ShaderComponent::fromFile(
@@ -152,62 +145,37 @@ int main() {
 
 	Renderer renderer;
 
-	Chessboard chessboard;
-	Figure* selectedFigure = &chessboard.figures[0];
+	float deltaTime = 0.f;
+	float lastFrame = 0.f;
+
+	glm::vec2 breadoggoPos{416.f, 206.f};
+
 	while (!glfwWindowShouldClose(window)) {
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		mvp = proj * view * model;
+		mvp = proj * camera.calculateViewMatrix() * model;
 		shader.bind();
 		shader.setUniformMat4f("u_MVP", mvp);
 
-		// Rendering the chessboard
-		{ // batch renderer
-			std::vector<SpriteSheetQuad> quads;
-			quads.reserve(quadCount);
-
-			for (uint8_t i = 0; i < 8; ++i) {
-				for (uint8_t j = 0; j < 8; ++j) {
-					bool isEven = j % 2 == 0;
-					bool isKacperek = isEven
-						? i % 2 == 0
-						: i % 2 == 1;
-
-					quads.push_back({
-						static_cast<unsigned int>(isKacperek ? 3 : 5),
-						{i * 64.0f, j * 64.0f},
-						{i * 64.0f + 64.0f, j * 64.0f},
-						{i * 64.0f + 64.0f, j * 64.0f + 64.0f},
-						{i * 64.0f, j * 64.0f + 64.0f}
-					});
-				}
-			}
-
-			for (const auto& figure : chessboard.figures) {
-				unsigned int index;
-				switch (figure.type) {
-					case FigureType::rook: index = 2; break;
-					case FigureType::knight: index = 10; break;
-					case FigureType::bishop: index = 6; break;
-					case FigureType::queen: index = 1; break;
-					case FigureType::king: index = 9; break;
-					case FigureType::pawn: index = 7; break;
-				}
-
-				const auto& [x, y] = figure.position;
-
-				quads.push_back({
-					index,
-					{x * 64.0f + 11.0f, y * 64.0f + 11.0f},
-					{x * 64.0f + 11.0f + 42.0f, y * 64.0f + 11.0f},
-					{x * 64.0f + 11.0f + 42.0f, y * 64.0f + 11.0f + 42.0f},
-					{x * 64.0f + 11.0f, y * 64.0f + 11.0f + 42.0f},
-					figure.player
-				});
-			}
-
-			spriteSheet.draw(quads, vb);
+		{
+			Quad background{
+				{0.f, 0.f},
+				{3338.f, 0.f},
+				{3338.f, 1668.f},
+				{0.f, 1668.f},
+				{0.f, 0.f, 0.f, 0.f},
+				textures[0],
+			};
+			Quad character{
+				{breadoggoPos.x, breadoggoPos.y},
+				{breadoggoPos.x + 128.f, breadoggoPos.y},
+				{breadoggoPos.x + 128.f, breadoggoPos.y + 128.f},
+				{breadoggoPos.x, breadoggoPos.y + 128.f},
+				{0.f, 0.f, 0.f, 0.f},
+				textures[1]
+			};
+			renderer.render({ background, character }, vb);
 		}
 
 		ImGui_ImplOpenGL3_NewFrame();
@@ -221,35 +189,8 @@ int main() {
 
 			ImGui::BeginGroup();
 			ImGui::Text("camera");
-			ImGui::SliderFloat("camera x", &view[3][0], 0.0f, 960.0f);
-			ImGui::SliderFloat("camera y", &view[3][1], 0.0f, 540.0f);
-			ImGui::EndGroup();
-
-			ImGui::BeginGroup();
-			ImGui::Text("fun");
-			ImGui::SliderInt("fun", &fun, 0, 255);
-			ImGui::EndGroup();
-			
-			ImGui::BeginGroup();
-			ImGui::Text("cursor position (clicc to refresh)");
-			ImGui::SliderFloat("cursor x", &x, 0, 960);
-			ImGui::SliderFloat("cursor y", &y, 0, 540);
-			ImGui::EndGroup();
-
-			ImGui::BeginGroup();
-			ImGui::Text("pionek");
-			ImGui::SliderInt("pionek x",
-				&selectedFigure->position[0], 0, 7);
-			ImGui::SliderInt("pionek y",
-				&selectedFigure->position[1], 0, 7);
-			{
-				const char* playerNameBuffer = selectedFigure->player ? "blacc" : "white";
-				char* playerName = new char[6];
-				for (uint8_t i = 0; i < 6; ++i)
-					playerName[i] = playerNameBuffer[i];
-				ImGui::InputText("pionek player", playerName, 6);
-				delete[] playerName;
-			}
+			ImGui::SliderFloat("camera x", &camera.position.x, -960.0f, 960.0f);
+			ImGui::SliderFloat("camera y", &camera.position.y, -540.0f, 540.0f);
 			ImGui::EndGroup();
 
 			ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
@@ -264,22 +205,26 @@ int main() {
 
 		/* Poll for and process events */
 		glfwPollEvents();
-		if (glfwGetKey(window, GLFW_KEY_UP))
-			++fun;
-		if (glfwGetKey(window, GLFW_KEY_DOWN))
-			--fun;
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)) {
-			double xPos, yPos;
-			glfwGetCursorPos(window, &xPos, &yPos);
-			x = static_cast<float>(xPos);
-			y = static_cast<float>(yPos);
-
-			for (auto& figure : chessboard.figures) {
-				if (figure.contains(x, 540.0f - y)) {
-					selectedFigure = &figure;
-				}
-			}
+		if (glfwGetKey(window, GLFW_KEY_W)) {
+			camera.move(UP, 5.f);
+			breadoggoPos.y += 5.f;
 		}
+		if (glfwGetKey(window, GLFW_KEY_A)) {
+			camera.move(LEFT, 5.f);
+			breadoggoPos.x -= 5.f;
+		}
+		if (glfwGetKey(window, GLFW_KEY_S)) {
+			camera.move(DOWN, 5.f);
+			breadoggoPos.y -= 5.f;
+		}
+		if (glfwGetKey(window, GLFW_KEY_D)) {
+			camera.move(RIGHT, 5.f);
+			breadoggoPos.x += 5.f;
+		}
+
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
