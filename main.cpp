@@ -13,12 +13,13 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Quad.hpp"
 #include "Renderer.hpp"
-#include "SpriteSheet.hpp"
 #include <map>
 
 #include "Camera.hpp"
+#include <array>
+
+#include "Entity.hpp"
 
 static void dumpOpenGLMessage(
 	unsigned int source, unsigned int type, unsigned int id,
@@ -35,17 +36,15 @@ static void dumpOpenGLMessage(
 	case GL_DEBUG_SEVERITY_LOW:
 		std::cout << "[low severity] " << message << std::endl;
 		break;
-		/* case GL_DEBUG_SEVERITY_NOTIFICATION:
-			std::cout << "[notification] " << message << std::endl;
-			break; */
+	// case GL_DEBUG_SEVERITY_NOTIFICATION:
+	//	std::cout << "[notification] " << message << std::endl;
+	//	break;
 	default:
 		break;
 	}
 }
 
 int main() {
-	GLFWwindow* window;
-
 	/* Initialize the library */
 	if (!glfwInit())
 		return EXIT_FAILURE;
@@ -55,7 +54,7 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(960, 540, "nigga world", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(960, 540, "nigga world", nullptr, nullptr);
 	if (!window) {
 		glfwTerminate();
 		return EXIT_FAILURE;
@@ -70,8 +69,6 @@ int main() {
 		return EXIT_FAILURE;
 	}
 
-	std::cout << "wersyja: " << GLVersion.major << "." << GLVersion.minor << std::endl;
-
 	glDebugMessageCallback(dumpOpenGLMessage, nullptr);
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -79,38 +76,18 @@ int main() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	Camera2D camera{glm::vec2{-480.f, -270.f}};
+
+	glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0, 0));
+	glm::mat4 mvp = proj * camera.calculateViewMatrix() * model;
+
+	Renderer::init();
+
 	std::array<Texture, 2> textures = {
 		Texture{"res/textures/axajser.png"},
 		Texture{"res/textures/breadoggo.png"}
 	};
-
-	VertexArray va;
-	Buffer vb{ GL_ARRAY_BUFFER, nullptr, sizeof(Vertex) * 1000, GL_DYNAMIC_DRAW };
-	VertexBufferLayout layout;
-	layout.push(GL_FLOAT, 2); // position
-	layout.push(GL_FLOAT, 4); // rgba color
-	layout.push(GL_FLOAT, 2); // texcoords
-	layout.push(GL_FLOAT, 1); // texture id
-	layout.push(GL_FLOAT, 1); // invert?
-	va.addBuffer(vb, layout);
-
-	std::array<unsigned int, 6000> indices;
-	for (size_t i = 0; i < 990; ++i) {
-		indices[i * 6] = i * 4;
-		indices[i * 6 + 1] = i * 4 + 1;
-		indices[i * 6 + 2] = i * 4 + 2;
-		indices[i * 6 + 3] = i * 4 + 2;
-		indices[i * 6 + 4] = i * 4 + 3;
-		indices[i * 6 + 5] = i * 4;
-	}
-	Buffer ib{ GL_ELEMENT_ARRAY_BUFFER, indices.data(), indices.size() * sizeof(unsigned int), GL_STATIC_DRAW };
-
-	glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-	Camera2D camera{glm::vec2{-480.f, -270.f}, 2.f};
-	// glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0));
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0, 0));
-
-	glm::mat4 mvp = proj * camera.calculateViewMatrix() * model;
 
 	Shader shader;
 	shader.attach(ShaderComponent::fromFile(
@@ -143,40 +120,32 @@ int main() {
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-	Renderer renderer;
+	Entity entity{{430.f, 220.f}, {100.f, 100.f}, textures[1].getId()};
 
 	float deltaTime = 0.f;
 	float lastFrame = 0.f;
-
-	glm::vec2 breadoggoPos{416.f, 206.f};
-
 	while (!glfwWindowShouldClose(window)) {
 		/* Render here */
-		glClear(GL_COLOR_BUFFER_BIT);
+		Renderer::clear();
 
 		mvp = proj * camera.calculateViewMatrix() * model;
 		shader.bind();
 		shader.setUniformMat4f("u_MVP", mvp);
 
-		{
-			Quad background{
-				{0.f, 0.f},
-				{3338.f, 0.f},
-				{3338.f, 1668.f},
-				{0.f, 1668.f},
-				{0.f, 0.f, 0.f, 0.f},
-				textures[0],
-			};
-			Quad character{
-				{breadoggoPos.x, breadoggoPos.y},
-				{breadoggoPos.x + 128.f, breadoggoPos.y},
-				{breadoggoPos.x + 128.f, breadoggoPos.y + 128.f},
-				{breadoggoPos.x, breadoggoPos.y + 128.f},
-				{0.f, 0.f, 0.f, 0.f},
-				textures[1]
-			};
-			renderer.render({ background, character }, vb);
-		}
+		Renderer::beginBatch();
+		Renderer::drawQuad(
+			{0.f, 0.f},
+			{3338.f, 1668.f},
+			textures[0].getId()
+		);
+		entity.draw();
+		Renderer::drawQuad(
+			{0.f, 0.f},
+			{100.f, 100.f},
+			textures[1].getId()
+		);
+		Renderer::endBatch();
+		Renderer::render();
 
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -206,20 +175,20 @@ int main() {
 		/* Poll for and process events */
 		glfwPollEvents();
 		if (glfwGetKey(window, GLFW_KEY_W)) {
-			camera.move(UP, 5.f);
-			breadoggoPos.y += 5.f;
+			camera.move({0.f, 5.f});
+			entity.move({0.f, 5.f});
 		}
 		if (glfwGetKey(window, GLFW_KEY_A)) {
-			camera.move(LEFT, 5.f);
-			breadoggoPos.x -= 5.f;
+			camera.move({-5.f, 0.f});
+			entity.move({-5.f, 0.f});
 		}
 		if (glfwGetKey(window, GLFW_KEY_S)) {
-			camera.move(DOWN, 5.f);
-			breadoggoPos.y -= 5.f;
+			camera.move({0.f, -5.f});
+			entity.move({0.f, -5.f});
 		}
 		if (glfwGetKey(window, GLFW_KEY_D)) {
-			camera.move(RIGHT, 5.f);
-			breadoggoPos.x += 5.f;
+			camera.move({5.f, 0.f});
+			entity.move({5.f, 0.f});
 		}
 
 		float currentFrame = glfwGetTime();
@@ -230,6 +199,8 @@ int main() {
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
+
+	Renderer::shutdown();
 
 	glfwTerminate();
 	return 0;

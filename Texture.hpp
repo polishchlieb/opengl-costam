@@ -3,25 +3,22 @@
 
 #include <string>
 #include <iostream>
+#include <glad/glad.h>
 
 class Texture {
 public:
-    explicit Texture(std::string path);
+    explicit Texture(const std::string& path);
+    Texture();
     ~Texture();
 
     void bind(unsigned int slot = 0) const;
-    void unbind() const;
 
-    [[nodiscard]] inline int getWidth() const { return width; }
-    [[nodiscard]] inline int getHeight() const { return height; }
-    [[nodiscard]] inline unsigned int getId() const { return id; }
-    [[nodiscard]] inline int getSlot() const { return boundSlot; }
+    inline int getWidth() const { return width; }
+    int getHeight() const { return height; }
+    unsigned int getId() const { return id; }
 private:
     unsigned int id;
-    std::string filePath;
-    unsigned char* localBuffer;
     int width, height, bpp;
-    mutable int boundSlot;
 };
 
 #endif //UNTITLED_TEXTURE_HPP

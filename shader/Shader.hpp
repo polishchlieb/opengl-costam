@@ -12,8 +12,8 @@ public:
     ~Shader();
 
     void attach(const ShaderComponent& component);
-    void bind();
-    void unbind();
+    void bind() const;
+    void unbind() const;
     void link() const;
     void validate() const;
 

@@ -1,13 +1,23 @@
 #ifndef UNTITLED_RENDERER_HPP
 #define UNTITLED_RENDERER_HPP
 
-#include "Quad.hpp"
 #include "Buffer.hpp"
 #include <unordered_set>
+#include <glm/glm.hpp>
 
 class Renderer {
 public:
-    void render(const std::vector<Quad>& quads, const Buffer& vb);
+	static void init();
+	static void shutdown();
+
+	static void beginBatch();
+	static void endBatch();
+	static void render();
+
+	static void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
+	static void drawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID);
+
+	static void clear();
 };
 
 #endif //UNTITLED_RENDERER_HPP
