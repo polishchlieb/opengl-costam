@@ -26,8 +26,7 @@ struct RendererData {
 	Vertex* quadBufferPtr = nullptr;
 
 	std::vector<uint32_t> textureSlots;
-	// std::array<uint32_t, 32> textureSlots;
-	
+
 	uint32_t textureSlotIndex = 1;
 };
 
@@ -113,7 +112,7 @@ void Renderer::endBatch() {
 }
 
 void Renderer::render() {
-	for (uint32_t i = 1; i < data.textureSlotIndex; ++i)
+	for (uint32_t i = 0; i < data.textureSlotIndex; ++i)
 		glBindTextureUnit(i, data.textureSlots[i]);
 
 	glBindVertexArray(data.quadVA);
@@ -153,6 +152,57 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const 
 	data.quadBufferPtr->position = {position.x, position.y + size.y};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {0.f, 1.f};
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.indexCount += 6;
+}
+
+void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID, float& scrollX) {
+	if (data.indexCount >= maxIndices || data.textureSlotIndex > maxTextures) {
+		endBatch();
+		render();
+		beginBatch();
+	}
+
+	// todo: some tint maybe?
+	const glm::vec4 color = {1.f, 1.f, 1.f, 1.f};
+
+	float textureIndex = 0.f;
+	for (uint32_t i = 1; i < data.textureSlotIndex; ++i) {
+		if (data.textureSlots[i] == textureID) {
+			textureIndex = static_cast<float>(i);
+			break;
+		}
+	}
+
+	if (textureIndex == 0.f) {
+		textureIndex = static_cast<float>(data.textureSlotIndex);
+		data.textureSlots[data.textureSlotIndex] = textureID;
+		data.textureSlotIndex++;
+	}
+
+	data.quadBufferPtr->position = { position.x, position.y };
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = { 0.f + scrollX, 0.f };
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = { position.x + size.x, position.y };
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = { 1.f + scrollX, 0.f };
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = { position.x + size.x, position.y + size.y };
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = { 1.f + scrollX, 1.f };
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = { position.x, position.y + size.y };
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = { 0.f + scrollX, 1.f };
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 

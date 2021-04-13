@@ -7,7 +7,7 @@
 
 class Texture {
 public:
-    explicit Texture(const std::string& path);
+    explicit Texture(const std::string& path, GLint wrap = GL_CLAMP_TO_EDGE);
     Texture();
     ~Texture();
 
