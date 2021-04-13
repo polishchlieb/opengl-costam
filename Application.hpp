@@ -5,7 +5,7 @@
 #include "Camera.hpp"
 #include <glm/glm.hpp>
 #include "shader/Shader.hpp"
-#include "Entity.hpp"
+#include "Breadoggo.hpp"
 
 class Application {
 public:
@@ -28,7 +28,7 @@ private:
 
 	Shader shader;
 
-	std::unique_ptr<Entity> entity;
+	std::unique_ptr<Breadoggo> entity;
 
 	float deltaTime = 0.f;
 	float lastFrame = 0.f;

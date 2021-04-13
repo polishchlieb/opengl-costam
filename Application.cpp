@@ -6,6 +6,8 @@
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_opengl3.h>
 
+#include <stb_image.h>
+
 Application::Application(GLFWwindow* window)
 	: window(window) {}
 
@@ -23,7 +25,9 @@ void Application::init() {
 
 	background = std::make_unique<Texture>("res/textures/background.png", GL_REPEAT);
 	sun = std::make_unique<Texture>("res/textures/sloneczko.png");
+
 	breadoggo = std::make_unique<Texture>("res/textures/breadoggo.png");
+	Breadoggo::init(breadoggo->getId());
 
 	shader.attach(ShaderComponent::fromFile(
 		GL_VERTEX_SHADER,
@@ -55,9 +59,7 @@ void Application::init() {
 	ImGuiIO& io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
-	entity = std::make_unique<Entity>(
-		glm::vec2{430.f, 120.f}, glm::vec2{100.f, 100.f}, breadoggo->getId()
-	);
+	entity = std::make_unique<Breadoggo>(glm::vec2{430.f, 120.f});
 }
 
 void Application::loop() {
@@ -143,5 +145,8 @@ void Application::processEvents() {
 	if (glfwGetKey(window, GLFW_KEY_S)) {
 		entity->move({ -0.005f, 0.f });
 		scrollX -= 0.005f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+		entity->jump();
 	}
 }
