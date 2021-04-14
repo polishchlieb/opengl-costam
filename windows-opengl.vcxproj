@@ -83,8 +83,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)dependencies\glfw\include;$(SolutionDir)dependencies\glad\include;$(SolutionDir)dependencies\glm;$(SolutionDir)dependencies\freetype\include;$(SolutionDir)dependencies\imgui\include;$(SolutionDir)dependencies\stb_image\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)dependencies\glfw\lib;$(SolutionDir)dependencies\imgui\lib;$(SolutionDir)dependencies\glad\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)dependencies\glfw\include;$(SolutionDir)dependencies\glad\include;$(SolutionDir)dependencies\glm;$(SolutionDir)dependencies\imgui\include;$(SolutionDir)dependencies\stb_image\include;$(SolutionDir)dependencies\openal\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)dependencies\glfw\lib;$(SolutionDir)dependencies\imgui\lib;$(SolutionDir)dependencies\glad\lib;$(SolutionDir)dependencies\openal\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -145,7 +145,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;ImGui.lib;glad.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3.lib;ImGui.lib;glad.lib;OpenAL32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
