@@ -152,32 +152,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Breadoggo.hpp" />
-    <ClInclude Include="Buffer.hpp" />
-    <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="Entity.hpp" />
+    <ClInclude Include="scene\Camera.hpp" />
+    <ClInclude Include="scene\Entity.hpp" />
     <ClInclude Include="Application.hpp" />
     <ClInclude Include="event\Event.hpp" />
     <ClInclude Include="event\EventType.hpp" />
     <ClInclude Include="event\KeyPressedEvent.hpp" />
     <ClInclude Include="event\MouseMoveEvent.hpp" />
-    <ClInclude Include="Renderer.hpp" />
+    <ClInclude Include="rendering\Font.hpp" />
+    <ClInclude Include="rendering\Glyph.hpp" />
+    <ClInclude Include="rendering\Renderer.hpp" />
     <ClInclude Include="shader\Shader.hpp" />
     <ClInclude Include="shader\ShaderComponent.hpp" />
-    <ClInclude Include="Texture.hpp" />
+    <ClInclude Include="rendering\Texture.hpp" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
-    <ClInclude Include="Vertex.hpp" />
+    <ClInclude Include="rendering\Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Breadoggo.cpp" />
-    <ClCompile Include="Buffer.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="Entity.cpp" />
+    <ClCompile Include="scene\Camera.cpp" />
+    <ClCompile Include="scene\Entity.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="rendering\Font.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="rendering\Renderer.cpp" />
     <ClCompile Include="shader\Shader.cpp" />
     <ClCompile Include="shader\ShaderComponent.cpp" />
-    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="rendering\Texture.cpp" />
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

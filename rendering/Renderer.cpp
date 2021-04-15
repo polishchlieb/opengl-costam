@@ -25,7 +25,7 @@ struct RendererData {
 	Vertex* quadBuffer = nullptr;
 	Vertex* quadBufferPtr = nullptr;
 
-	std::vector<uint32_t> textureSlots;
+	std::set<uint32_t> textureSlots;
 
 	uint32_t textureSlotIndex = 1;
 };
@@ -85,10 +85,11 @@ void Renderer::init() {
 	uint32_t color = 0xffffffff;
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
 
-	data.textureSlots.reserve(maxTextures);
-	data.textureSlots[0] = data.whiteTexture;
-	for (size_t i = 1; i < maxTextures; ++i)
-		data.textureSlots[i] = 0;
+	// data.textureSlots.reserve(maxTextures);
+	// data.textureSlots[0] = data.whiteTexture;
+	data.textureSlots.insert(data.whiteTexture);
+	// for (size_t i = 1; i < maxTextures; ++i)
+		// data.textureSlots[i] = 0;
 }
 
 void Renderer::shutdown() {
@@ -112,8 +113,13 @@ void Renderer::endBatch() {
 }
 
 void Renderer::render() {
-	for (uint32_t i = 0; i < data.textureSlotIndex; ++i)
-		glBindTextureUnit(i, data.textureSlots[i]);
+	/* for (uint32_t i = 0; i < data.textureSlotIndex; ++i)
+		glBindTextureUnit(i, data.textureSlots[i]); */
+	uint8_t i = 0;
+	for (const auto textureID : data.textureSlots) {
+		glBindTextureUnit(i, textureID);
+		++i;
+	}
 
 	glBindVertexArray(data.quadVA);
 	glDrawElements(GL_TRIANGLES, data.indexCount, GL_UNSIGNED_INT, nullptr);
@@ -132,25 +138,25 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const 
 	float textureIndex = 0.f;
 
 	data.quadBufferPtr->position = {position.x, position.y};
-	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->color = {1.f, 0.f, 0.f, 1.f};
 	data.quadBufferPtr->texCoords = {0.f, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x + size.x, position.y};
-	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->color = {0.f, 1.f, 0.f, 1.f};
 	data.quadBufferPtr->texCoords = {1.f, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x + size.x, position.y + size.y};
-	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->color = {0.f, 1.f, 0.f, 1.f};
 	data.quadBufferPtr->texCoords = {1.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x, position.y + size.y};
-	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->color = {1.f, 0.f, 0.f, 1.f};
 	data.quadBufferPtr->texCoords = {0.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
@@ -158,7 +164,7 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const 
 	data.indexCount += 6;
 }
 
-void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID, float& scrollX) {
+void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID, float scrollX) {
 	if (data.indexCount >= maxIndices || data.textureSlotIndex > maxTextures) {
 		endBatch();
 		render();
@@ -169,17 +175,23 @@ void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& siz
 	const glm::vec4 color = {1.f, 1.f, 1.f, 1.f};
 
 	float textureIndex = 0.f;
-	for (uint32_t i = 1; i < data.textureSlotIndex; ++i) {
+	/* for (uint32_t i = 1; i < data.textureSlotIndex; ++i) {
 		if (data.textureSlots[i] == textureID) {
 			textureIndex = static_cast<float>(i);
 			break;
 		}
-	}
+	} */
+	if (data.textureSlots.contains(textureID))
+		textureIndex = std::distance(
+			data.textureSlots.begin(),
+			data.textureSlots.find(textureID)
+		);
 
 	if (textureIndex == 0.f) {
 		textureIndex = static_cast<float>(data.textureSlotIndex);
-		data.textureSlots[data.textureSlotIndex] = textureID;
-		data.textureSlotIndex++;
+		/* data.textureSlots[data.textureSlotIndex] = textureID;
+		data.textureSlotIndex++; */
+		data.textureSlots.insert(textureID);
 	}
 
 	data.quadBufferPtr->position = { position.x, position.y };
@@ -209,6 +221,87 @@ void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& siz
 	data.indexCount += 6;
 }
 
+#include <iostream>
+
+void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const Glyph& glyph) {
+	if (data.indexCount >= maxIndices || data.textureSlotIndex > maxTextures) {
+		endBatch();
+		render();
+		beginBatch();
+	}
+
+	// todo: some tint maybe?
+	const glm::vec4 color = { 1.f, 0.f, 0.f, 1.f };
+
+	float textureIndex = 0.f;
+	/* for (uint32_t i = 1; i < data.textureSlotIndex; ++i) {
+		if (data.textureSlots[i] == glyph.textureID) {
+			textureIndex = static_cast<float>(i);
+			break;
+		}
+	} */
+	if (data.textureSlots.contains(glyph.textureID))
+		textureIndex = std::distance(
+			data.textureSlots.begin(),
+			data.textureSlots.find(glyph.textureID)
+		);
+
+	if (textureIndex == 0.f) {
+		textureIndex = static_cast<float>(data.textureSlotIndex);
+		// data.textureSlots[data.textureSlotIndex] = glyph.textureID;
+		data.textureSlots.insert(glyph.textureID);
+		data.textureSlotIndex++;
+	}
+
+	const auto glyphsPerX = glyph.spriteWidth / glyph.width;
+	const auto glyphsPerY = glyph.spriteHeight / glyph.height;
+
+	const auto x = (glyph.index % glyphsPerX) * glyph.width;
+	const auto y = glyph.spriteHeight - (glyph.index / glyphsPerY + 1) * glyph.height;
+
+	const auto toSpriteSize = [&glyph](int value) {
+		return static_cast<float>(value) / static_cast<float>(glyph.spriteWidth);
+	};
+
+	data.quadBufferPtr->position = {position.x, position.y};
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = {
+		toSpriteSize(x),
+		toSpriteSize(y)
+	};
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = {position.x + size.x, position.y};
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = {
+		toSpriteSize(x + glyph.baseWidth),
+		toSpriteSize(y)
+	};
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = {position.x + size.x, position.y + size.y};
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = {
+		toSpriteSize(x + glyph.baseWidth),
+		toSpriteSize(y + glyph.height)
+	};
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = {position.x, position.y + size.y};
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = {
+		toSpriteSize(x),
+		toSpriteSize(y + glyph.height)
+	};
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.indexCount += 6;
+}
+
 void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID) {
 	if (data.indexCount >= maxIndices || data.textureSlotIndex > maxTextures) {
 		endBatch();
@@ -220,16 +313,16 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32
 	const glm::vec4 color = {1.f, 1.f, 1.f, 1.f};
 
 	float textureIndex = 0.f;
-	for (uint32_t i = 1; i < data.textureSlotIndex; ++i) {
-		if (data.textureSlots[i] == textureID) {
-			textureIndex = static_cast<float>(i);
-			break;
-		}
-	}
+	if (data.textureSlots.contains(textureID))
+		textureIndex = std::distance(
+			data.textureSlots.begin(),
+			data.textureSlots.find(textureID)
+		);
 
 	if (textureIndex == 0.f) {
 		textureIndex = static_cast<float>(data.textureSlotIndex);
-		data.textureSlots[data.textureSlotIndex] = textureID;
+		// data.textureSlots[data.textureSlotIndex] = textureID;
+		data.textureSlots.insert(textureID);
 		data.textureSlotIndex++;
 	}
 

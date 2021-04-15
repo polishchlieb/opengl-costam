@@ -1,11 +1,12 @@
 #pragma once
 #include <memory>
-#include "Texture.hpp"
+#include "rendering/Texture.hpp"
 #include <GLFW/glfw3.h>
-#include "Camera.hpp"
+#include "scene/Camera.hpp"
 #include <glm/glm.hpp>
 #include "shader/Shader.hpp"
 #include "Breadoggo.hpp"
+#include "rendering/Font.hpp"
 
 class Application {
 public:
@@ -20,6 +21,9 @@ private:
 	std::unique_ptr<Texture> background;
 	std::unique_ptr<Texture> sun;
 	std::unique_ptr<Texture> breadoggo;
+
+	std::unique_ptr<Font> font;
+	std::unique_ptr<Texture> comicSans;
 
 	Camera2D camera{glm::vec2{-480.f, -270.f}};
 	glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
@@ -61,4 +65,6 @@ private:
 	void draw();
 	void drawGUI();
 	void processEvents();
+
+	char* serverIP;
 };

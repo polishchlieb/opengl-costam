@@ -1,5 +1,5 @@
 #include "Entity.hpp"
-#include "Renderer.hpp"
+#include "../rendering/Renderer.hpp"
 
 Entity::Entity(glm::vec2 position, glm::vec2 size, glm::vec4 color)
 	: position(position), size(size), color(color), textured(false) {}

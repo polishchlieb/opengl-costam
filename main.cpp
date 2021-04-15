@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Application.hpp"
+#include <iostream>
 
 int main() {
 	/* Initialize the library */

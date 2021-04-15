@@ -1,33 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClInclude Include="Buffer.hpp" />
-    <ClInclude Include="Renderer.hpp" />
-    <ClInclude Include="Texture.hpp" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="shader\Shader.hpp" />
     <ClInclude Include="shader\ShaderComponent.hpp" />
-    <ClInclude Include="Camera.hpp" />
-    <ClInclude Include="Vertex.hpp" />
-    <ClInclude Include="Entity.hpp" />
     <ClInclude Include="event\Event.hpp" />
     <ClInclude Include="event\EventType.hpp" />
     <ClInclude Include="Application.hpp" />
     <ClInclude Include="Breadoggo.hpp" />
     <ClInclude Include="event\MouseMoveEvent.hpp" />
     <ClInclude Include="event\KeyPressedEvent.hpp" />
+    <ClInclude Include="rendering\Glyph.hpp" />
+    <ClInclude Include="rendering\Font.hpp" />
+    <ClInclude Include="rendering\Renderer.hpp" />
+    <ClInclude Include="rendering\Vertex.hpp" />
+    <ClInclude Include="rendering\Texture.hpp" />
+    <ClInclude Include="scene\Camera.hpp" />
+    <ClInclude Include="scene\Entity.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Renderer.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="Buffer.cpp" />
     <ClCompile Include="shader\Shader.cpp" />
     <ClCompile Include="shader\ShaderComponent.cpp" />
     <ClCompile Include="stb_image.cpp" />
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Breadoggo.cpp" />
+    <ClCompile Include="rendering\Font.cpp" />
+    <ClCompile Include="rendering\Renderer.cpp" />
+    <ClCompile Include="rendering\Texture.cpp" />
+    <ClCompile Include="scene\Camera.cpp" />
+    <ClCompile Include="scene\Entity.cpp" />
   </ItemGroup>
 </Project>
