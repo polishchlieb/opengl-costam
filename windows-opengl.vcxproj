@@ -83,7 +83,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(SolutionDir)dependencies\glfw\include;$(SolutionDir)dependencies\glad\include;$(SolutionDir)dependencies\glm;$(SolutionDir)dependencies\imgui\include;$(SolutionDir)dependencies\stb_image\include;$(SolutionDir)dependencies\openal\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)dependencies\glfw\include;$(SolutionDir)dependencies\glad\include;$(SolutionDir)dependencies\glm;$(SolutionDir)dependencies\imgui\include;$(SolutionDir)dependencies\stb_image\include;$(SolutionDir)dependencies\openal\include;$(SolutionDir)dependencies\audiofile;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)dependencies\glfw\lib;$(SolutionDir)dependencies\imgui\lib;$(SolutionDir)dependencies\glad\lib;$(SolutionDir)dependencies\openal\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -152,6 +152,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Breadoggo.hpp" />
+    <ClInclude Include="networking\Client.hpp" />
+    <ClInclude Include="networking\Message.hpp" />
     <ClInclude Include="scene\Camera.hpp" />
     <ClInclude Include="scene\Entity.hpp" />
     <ClInclude Include="Application.hpp" />
@@ -170,6 +172,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Breadoggo.cpp" />
+    <ClCompile Include="networking\Client.cpp" />
+    <ClCompile Include="rendering\stb_image.cpp" />
     <ClCompile Include="scene\Camera.cpp" />
     <ClCompile Include="scene\Entity.cpp" />
     <ClCompile Include="Application.cpp" />
@@ -179,7 +183,6 @@
     <ClCompile Include="shader\Shader.cpp" />
     <ClCompile Include="shader\ShaderComponent.cpp" />
     <ClCompile Include="rendering\Texture.cpp" />
-    <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

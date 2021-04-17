@@ -1,6 +1,5 @@
 #pragma once
 #include "scene/Entity.hpp"
-#include <glm/glm.hpp>
 
 class Breadoggo : public Entity {
 public:

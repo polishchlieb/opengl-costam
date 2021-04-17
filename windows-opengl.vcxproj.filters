@@ -17,12 +17,13 @@
     <ClInclude Include="rendering\Texture.hpp" />
     <ClInclude Include="scene\Camera.hpp" />
     <ClInclude Include="scene\Entity.hpp" />
+    <ClInclude Include="networking\Message.hpp" />
+    <ClInclude Include="networking\Client.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shader\Shader.cpp" />
     <ClCompile Include="shader\ShaderComponent.cpp" />
-    <ClCompile Include="stb_image.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Breadoggo.cpp" />
     <ClCompile Include="rendering\Font.cpp" />
@@ -30,5 +31,7 @@
     <ClCompile Include="rendering\Texture.cpp" />
     <ClCompile Include="scene\Camera.cpp" />
     <ClCompile Include="scene\Entity.cpp" />
+    <ClCompile Include="networking\Client.cpp" />
+    <ClCompile Include="rendering\stb_image.cpp" />
   </ItemGroup>
 </Project>

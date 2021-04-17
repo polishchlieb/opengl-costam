@@ -49,7 +49,7 @@ GLint Shader::getUniformLocation(const std::string& name) const {
 
     GLint location = glGetUniformLocation(program, name.c_str());
     if (location == -1)
-        throw std::runtime_error("panie, z location cos nie tak jest! (chyba)");
+        throw std::runtime_error("couldn't find the uniform location");
 
     uniformLocationCache[name] = location;
 

@@ -8,6 +8,11 @@
 #include "Breadoggo.hpp"
 #include "rendering/Font.hpp"
 
+#include <AL/al.h>
+#include <AL/alc.h>
+
+#include <thread>
+
 class Application {
 public:
 	explicit Application(GLFWwindow* window);
@@ -65,6 +70,14 @@ private:
 	void draw();
 	void drawGUI();
 	void processEvents();
+
+	void initOpenAL();
+	ALCdevice* device = nullptr;
+	ALCcontext* context = nullptr;
+	ALuint monoSoundBuffer = 0;
+	ALuint source = 0;
+	bool amogusPlayed = false;
+	std::thread amogus;
 
 	char* serverIP;
 };

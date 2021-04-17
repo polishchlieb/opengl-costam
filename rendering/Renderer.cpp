@@ -165,7 +165,7 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const 
 }
 
 void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID, float scrollX) {
-	if (data.indexCount >= maxIndices || data.textureSlotIndex > maxTextures) {
+	if (data.indexCount >= maxIndices || data.textureSlotIndex > static_cast<GLuint>(maxTextures)) {
 		endBatch();
 		render();
 		beginBatch();
@@ -182,10 +182,10 @@ void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& siz
 		}
 	} */
 	if (data.textureSlots.contains(textureID))
-		textureIndex = std::distance(
+		textureIndex = static_cast<float>(std::distance(
 			data.textureSlots.begin(),
 			data.textureSlots.find(textureID)
-		);
+		));
 
 	if (textureIndex == 0.f) {
 		textureIndex = static_cast<float>(data.textureSlotIndex);
@@ -224,7 +224,7 @@ void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& siz
 #include <iostream>
 
 void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const Glyph& glyph) {
-	if (data.indexCount >= maxIndices || data.textureSlotIndex > maxTextures) {
+	if (data.indexCount >= maxIndices || data.textureSlotIndex > static_cast<GLuint>(maxTextures)) {
 		endBatch();
 		render();
 		beginBatch();
@@ -241,10 +241,10 @@ void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const
 		}
 	} */
 	if (data.textureSlots.contains(glyph.textureID))
-		textureIndex = std::distance(
+		textureIndex = static_cast<float>(std::distance(
 			data.textureSlots.begin(),
 			data.textureSlots.find(glyph.textureID)
-		);
+		));
 
 	if (textureIndex == 0.f) {
 		textureIndex = static_cast<float>(data.textureSlotIndex);
@@ -303,7 +303,7 @@ void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const
 }
 
 void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID) {
-	if (data.indexCount >= maxIndices || data.textureSlotIndex > maxTextures) {
+	if (data.indexCount >= maxIndices || data.textureSlotIndex > static_cast<GLuint>(maxTextures)) {
 		endBatch();
 		render();
 		beginBatch();
@@ -314,10 +314,10 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32
 
 	float textureIndex = 0.f;
 	if (data.textureSlots.contains(textureID))
-		textureIndex = std::distance(
+		textureIndex = static_cast<float>(std::distance(
 			data.textureSlots.begin(),
 			data.textureSlots.find(textureID)
-		);
+		));
 
 	if (textureIndex == 0.f) {
 		textureIndex = static_cast<float>(data.textureSlotIndex);
