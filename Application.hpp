@@ -72,6 +72,10 @@ private:
 	void processEvents();
 
 	void initOpenAL();
+	void initOpenGL();
+	void initRendering();
+	void initImGui();
+
 	ALCdevice* device = nullptr;
 	ALCcontext* context = nullptr;
 	ALuint monoSoundBuffer = 0;
@@ -79,5 +83,5 @@ private:
 	bool amogusPlayed = false;
 	std::thread amogus;
 
-	char* serverIP;
+	char* serverIP = nullptr;
 };

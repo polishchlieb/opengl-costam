@@ -3,6 +3,6 @@
 
 class Event {
 public:
-	EventType type;
+	EventType type = NONE;
 	bool handled = false;
 };
