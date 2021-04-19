@@ -19,6 +19,9 @@
     <ClInclude Include="scene\Entity.hpp" />
     <ClInclude Include="networking\Message.hpp" />
     <ClInclude Include="networking\Client.hpp" />
+    <ClInclude Include="audio\AudioContext.hpp" />
+    <ClInclude Include="audio\AudioListener.hpp" />
+    <ClInclude Include="audio\AudioSource.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -33,5 +36,7 @@
     <ClCompile Include="scene\Entity.cpp" />
     <ClCompile Include="networking\Client.cpp" />
     <ClCompile Include="rendering\stb_image.cpp" />
+    <ClCompile Include="audio\AudioContext.cpp" />
+    <ClCompile Include="audio\AudioSource.cpp" />
   </ItemGroup>
 </Project>

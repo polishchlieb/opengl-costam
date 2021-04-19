@@ -10,6 +10,8 @@
 
 #include <AL/al.h>
 #include <AL/alc.h>
+#include "audio/AudioContext.hpp"
+#include "audio/AudioSource.hpp"
 
 #include <thread>
 
@@ -59,9 +61,6 @@ private:
 		case GL_DEBUG_SEVERITY_LOW:
 			std::cout << "[low severity] " << message << std::endl;
 			break;
-		// case GL_DEBUG_SEVERITY_NOTIFICATION:
-		//	std::cout << "[notification] " << message << std::endl;
-		//	break;
 		default:
 			break;
 		}
@@ -76,12 +75,8 @@ private:
 	void initRendering();
 	void initImGui();
 
-	ALCdevice* device = nullptr;
-	ALCcontext* context = nullptr;
-	ALuint monoSoundBuffer = 0;
-	ALuint source = 0;
-	bool amogusPlayed = false;
-	std::thread amogus;
+	AudioContext context;
+	AudioSource amogus;
 
 	char* serverIP = nullptr;
 };

@@ -10,6 +10,8 @@
 
 #include <AudioFile.h>
 
+#include "audio/AudioListener.hpp"
+
 Application::Application(GLFWwindow* window)
 	: window(window) {}
 
@@ -49,15 +51,6 @@ void Application::shutdown() {
 	glfwTerminate();
 
 	delete[] serverIP;
-
-	alDeleteSources(1, &source);
-	alDeleteBuffers(1, &monoSoundBuffer);
-	alcMakeContextCurrent(nullptr);
-	alcDestroyContext(context);
-	alcCloseDevice(device);
-
-	if (amogus.joinable())
-		amogus.detach();
 }
 
 void Application::draw() {
@@ -112,17 +105,11 @@ void Application::drawGUI() {
 	ImGui::EndGroup();
 
 	ImGui::InputText("server ip", serverIP, 50);
+
+	static bool amogusPlayed = false;
 	if (serverIP[0] == 's' && serverIP[1] == 'u' && serverIP[2] == 's' && !amogusPlayed) {
-		amogus = std::thread{
-			[this]() {
-				amogusPlayed = true;
-				alSourcePlay(source);
-				ALint sourceState;
-				alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
-				while (sourceState == AL_PLAYING)
-					alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
-			}
-		};
+		amogus.play();
+		amogusPlayed = true;
 	}
 
 	ImGui::Text("%.1f FPS", ImGui::GetIO().Framerate);
@@ -148,60 +135,14 @@ void Application::processEvents() {
 }
 
 void Application::initOpenAL() {
-	const ALCchar* defaultDeviceString = alcGetString(nullptr, ALC_DEFAULT_DEVICE_SPECIFIER);
-	/* ALCdevice* */ device = alcOpenDevice(defaultDeviceString);
-	if (!device)
-		throw std::runtime_error("Couldn't open the device");
-
-	// debug
-	std::cout << "OpenAL Device: " << alcGetString(device, ALC_DEVICE_SPECIFIER) << std::endl;
-
-	/* ALCcontext* */ context = alcCreateContext(device, nullptr);
-	if (!alcMakeContextCurrent(context))
-		throw std::runtime_error("Couldn't make the context current");
-
-	alListener3f(AL_POSITION, 0.f, 0.f, 0.f);
-	alListener3f(AL_VELOCITY, 0.f, 0.f, 0.f);
-	ALfloat orientation[] = {
+	AudioListener::setPosition({0.f, 0.f, 0.f});
+	AudioListener::setVelocity({0.f, 0.f, 0.f});
+	AudioListener::setOrientation({
 		1.f, 0.f, 0.f,
 		0.f, 1.f, 0.f
-	};
-	alListenerfv(AL_ORIENTATION, orientation);
-
-	AudioFile<float> soundFile;
-	if (!soundFile.load("res/audio/amogus.wav"))
-		throw std::runtime_error("Couldn't load amogus.wav");
-
-	std::vector<uint8_t> monoPCMDataBytes;
-	soundFile.writePCMToBuffer(monoPCMDataBytes);
-	auto convertFileToOpenALFormat = [](const AudioFile<float>& audioFile) {
-		int bitDepth = audioFile.getBitDepth();
-		if (bitDepth == 16)
-			return audioFile.isStereo() ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16;
-		else if (bitDepth == 8)
-			return audioFile.isStereo() ? AL_FORMAT_STEREO8 : AL_FORMAT_MONO8;
-		else
-			return -1;
-	};
-
-	// ALuint monoSoundBuffer;
-	alGenBuffers(1, &monoSoundBuffer);
-	alBufferData(
-		monoSoundBuffer,
-		convertFileToOpenALFormat(soundFile),
-		monoPCMDataBytes.data(),
-		static_cast<ALsizei>(monoPCMDataBytes.size()),
-		soundFile.getSampleRate()
-	);
-
-	// ALuint source;
-	alGenSources(1, &source);
-	alSource3f(source, AL_POSITION, 1.f, 0.f, 0.f);
-	alSource3f(source, AL_VELOCITY, 0.f, 0.f, 0.f);
-	alSourcef(source, AL_PITCH, 1.f);
-	alSourcef(source, AL_GAIN, 1.f);
-	alSourcei(source, AL_LOOPING, AL_FALSE);
-	alSourcei(source, AL_BUFFER, monoSoundBuffer);
+	});
+	
+	amogus.load("res/audio/amogus.wav");
 }
 
 void Application::initOpenGL() {
