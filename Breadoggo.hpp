@@ -1,5 +1,9 @@
 #pragma once
 #include "scene/Entity.hpp"
+#include <memory>
+#include "event/Event.hpp"
+#include <iostream>
+#include "event/EventDispatcher.hpp"
 
 class Breadoggo : public Entity {
 public:
@@ -15,4 +19,6 @@ private:
 		UP, DOWN
 	};
 	JumpDirection jumpDirection = UP;
+
+	void handleEvent(std::shared_ptr<Event> event);
 };

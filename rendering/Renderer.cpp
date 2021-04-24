@@ -3,9 +3,7 @@
 #include <cstring>
 #include <glad/glad.h>
 #include <set>
-#include <array>
 #include <stdexcept>
-#include "Vertex.hpp"
 
 static const size_t maxQuads = 1000;
 static const size_t maxVertices = maxQuads * 4;
@@ -29,6 +27,9 @@ struct RendererData {
 
 	uint32_t textureSlotIndex = 1;
 };
+
+#include <unordered_map>
+static std::unordered_map<char, Character> characters;
 
 static RendererData data;
 
@@ -90,6 +91,68 @@ void Renderer::init() {
 	data.textureSlots.insert(data.whiteTexture);
 	// for (size_t i = 1; i < maxTextures; ++i)
 		// data.textureSlots[i] = 0;
+
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+		throw std::runtime_error("couldn't init freetype");
+
+	FT_Face face;
+	if (FT_New_Face(ft, "res/fonts/comic.ttf", 0, &face))
+		throw std::runtime_error("couldn't load the font");
+
+	FT_Set_Pixel_Sizes(face, 0, 48);
+	// FT_Bitmap_Convert()
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	for (unsigned char c = 0; c < 128; ++c) {
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+			throw std::runtime_error("couldn't load glyph " + c);
+
+		GLuint texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		auto size = face->glyph->bitmap.width * face->glyph->bitmap.rows;
+		unsigned char* buffer = new unsigned char[static_cast<uint64_t>(size) * 4];
+
+		for (unsigned int i = 0; i < size; ++i) {
+			buffer[i * 4] = 255;
+			buffer[i * 4 + 1] = 255;
+			buffer[i * 4 + 2] = 255;
+			buffer[i * 4 + 3] = face->glyph->bitmap.buffer[i];
+		}
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RGBA,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RGBA,
+			GL_UNSIGNED_BYTE,
+			buffer
+		);
+
+		delete[] buffer;
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		Character character{
+			texture,
+			glm::vec2{face->glyph->bitmap.width, face->glyph->bitmap.rows},
+			glm::vec2{face->glyph->bitmap_left, face->glyph->bitmap_top},
+			face->glyph->advance.x
+		};
+		characters.insert({c, character});
+	}
+
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
 }
 
 void Renderer::shutdown() {
@@ -113,8 +176,6 @@ void Renderer::endBatch() {
 }
 
 void Renderer::render() {
-	/* for (uint32_t i = 0; i < data.textureSlotIndex; ++i)
-		glBindTextureUnit(i, data.textureSlots[i]); */
 	uint8_t i = 0;
 	for (const auto textureID : data.textureSlots) {
 		glBindTextureUnit(i, textureID);
@@ -138,25 +199,25 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const 
 	float textureIndex = 0.f;
 
 	data.quadBufferPtr->position = {position.x, position.y};
-	data.quadBufferPtr->color = {1.f, 0.f, 0.f, 1.f};
+	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {0.f, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x + size.x, position.y};
-	data.quadBufferPtr->color = {0.f, 1.f, 0.f, 1.f};
+	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {1.f, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x + size.x, position.y + size.y};
-	data.quadBufferPtr->color = {0.f, 1.f, 0.f, 1.f};
+	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {1.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x, position.y + size.y};
-	data.quadBufferPtr->color = {1.f, 0.f, 0.f, 1.f};
+	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {0.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
@@ -221,8 +282,6 @@ void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& siz
 	data.indexCount += 6;
 }
 
-#include <iostream>
-
 void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const Glyph& glyph) {
 	if (data.indexCount >= maxIndices || data.textureSlotIndex > static_cast<GLuint>(maxTextures)) {
 		endBatch();
@@ -230,16 +289,7 @@ void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const
 		beginBatch();
 	}
 
-	// todo: some tint maybe?
-	const glm::vec4 color = { 1.f, 0.f, 0.f, 1.f };
-
 	float textureIndex = 0.f;
-	/* for (uint32_t i = 1; i < data.textureSlotIndex; ++i) {
-		if (data.textureSlots[i] == glyph.textureID) {
-			textureIndex = static_cast<float>(i);
-			break;
-		}
-	} */
 	if (data.textureSlots.contains(glyph.textureID))
 		textureIndex = static_cast<float>(std::distance(
 			data.textureSlots.begin(),
@@ -248,7 +298,6 @@ void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const
 
 	if (textureIndex == 0.f) {
 		textureIndex = static_cast<float>(data.textureSlotIndex);
-		// data.textureSlots[data.textureSlotIndex] = glyph.textureID;
 		data.textureSlots.insert(glyph.textureID);
 		data.textureSlotIndex++;
 	}
@@ -264,42 +313,38 @@ void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const
 	};
 
 	data.quadBufferPtr->position = {position.x, position.y};
-	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = {
-		toSpriteSize(x),
-		toSpriteSize(y)
-	};
+	data.quadBufferPtr->color = glyph.color;
+	data.quadBufferPtr->texCoords = {toSpriteSize(x), toSpriteSize(y)};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x + size.x, position.y};
-	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = {
-		toSpriteSize(x + glyph.baseWidth),
-		toSpriteSize(y)
-	};
+	data.quadBufferPtr->color = glyph.color;
+	data.quadBufferPtr->texCoords = {toSpriteSize(x + glyph.baseWidth), toSpriteSize(y)};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x + size.x, position.y + size.y};
-	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = {
-		toSpriteSize(x + glyph.baseWidth),
-		toSpriteSize(y + glyph.height)
-	};
+	data.quadBufferPtr->color = glyph.color;
+	data.quadBufferPtr->texCoords = {toSpriteSize(x + glyph.baseWidth), toSpriteSize(y + glyph.height)};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x, position.y + size.y};
-	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = {
-		toSpriteSize(x),
-		toSpriteSize(y + glyph.height)
-	};
+	data.quadBufferPtr->color = glyph.color;
+	data.quadBufferPtr->texCoords = {toSpriteSize(x), toSpriteSize(y + glyph.height)};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.indexCount += 6;
+}
+
+void Renderer::drawText(glm::vec2 position, const std::string& value, float scale, const glm::vec4& color) {
+	for (char c : value) {
+		Character ch = characters[c];
+		drawGlyph(position, ch, scale, color);
+		position.x += (ch.advance >> 6) * scale;
+	}
 }
 
 void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID) {
@@ -346,7 +391,7 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32
 
 	data.quadBufferPtr->position = { position.x, position.y + size.y };
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = {0.f, 1.f};
+	data.quadBufferPtr->texCoords = {0.f, 1.f}; 
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
@@ -355,4 +400,58 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32
 
 void Renderer::clear() {
 	glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void Renderer::drawGlyph(glm::vec2 position, const Character& ch, float scale, const glm::vec4& color) {
+	if (data.indexCount >= maxIndices || data.textureSlotIndex > static_cast<GLuint>(maxTextures)) {
+		endBatch();
+		render();
+		beginBatch();
+	}
+
+	float xPos = position.x + ch.bearing.x * scale;
+	float yPos = position.y - (ch.size.y - ch.bearing.y) * scale;
+
+	float width = ch.size.x * scale;
+	float height = ch.size.y * scale;
+
+	float textureIndex = 0.f;
+	if (data.textureSlots.contains(ch.textureID))
+		textureIndex = static_cast<float>(std::distance(
+			data.textureSlots.begin(),
+			data.textureSlots.find(ch.textureID)
+		));
+
+	if (textureIndex == 0.f) {
+		textureIndex = static_cast<float>(data.textureSlotIndex);
+		// data.textureSlots[data.textureSlotIndex] = textureID;
+		data.textureSlots.insert(ch.textureID);
+		data.textureSlotIndex++;
+	}
+
+	data.quadBufferPtr->position = {xPos, yPos};
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = {0.f, 1.f};
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = {xPos + width, yPos};
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = {1.f, 1.f};
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = {xPos + width, yPos + height};
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = {1.f, 0.f};
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = {xPos, yPos + height};
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = {0.f, 0.f};
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.indexCount += 6;
 }

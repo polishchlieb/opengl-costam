@@ -5,7 +5,7 @@
 class Font {
 public:
 	Font(GLuint textureID, std::vector<uint16_t> glyphWidths, uint16_t spriteWidth, uint16_t spriteHeight, uint16_t glyphWidth, uint16_t glyphHeight);
-	Glyph getGlyph(uint16_t index);
+	Glyph getGlyph(uint16_t index, glm::vec4 color);
 	uint16_t getGlyphWidth(uint16_t index);
 private:
 	GLuint textureID;

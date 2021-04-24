@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <cstdint>
+#include <glm/glm.hpp>
 
 struct Glyph {
 	GLuint textureID;
@@ -10,4 +11,5 @@ struct Glyph {
 	uint16_t spriteWidth;
 	uint16_t spriteHeight;
 	uint16_t baseWidth;
+	glm::vec4 color;
 };

@@ -9,6 +9,7 @@ in float v_TextureIndex;
 uniform sampler2D u_Textures[32];
 
 void main() {
-    int index = int(v_TextureIndex);
-    color = texture(u_Textures[index], v_TexCoord) * v_Color;
+    int textureIndex = int(v_TextureIndex);
+    vec4 sampled = texture(u_Textures[textureIndex], v_TexCoord);
+    color = sampled * v_Color;
 }

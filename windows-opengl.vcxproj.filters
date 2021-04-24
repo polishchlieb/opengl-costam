@@ -22,6 +22,9 @@
     <ClInclude Include="audio\AudioContext.hpp" />
     <ClInclude Include="audio\AudioListener.hpp" />
     <ClInclude Include="audio\AudioSource.hpp" />
+    <ClInclude Include="event\EventListener.hpp" />
+    <ClInclude Include="event\EventDispatcher.hpp" />
+    <ClInclude Include="SimpleClient.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -38,5 +41,6 @@
     <ClCompile Include="rendering\stb_image.cpp" />
     <ClCompile Include="audio\AudioContext.cpp" />
     <ClCompile Include="audio\AudioSource.cpp" />
+    <ClCompile Include="event\EventDispatcher.cpp" />
   </ItemGroup>
 </Project>

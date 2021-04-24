@@ -16,6 +16,7 @@ public:
     void unbind() const;
     void link() const;
     void validate() const;
+    void createSamplers();
 
     void setUniform1i(const std::string& name, int value);
     template<size_t size>

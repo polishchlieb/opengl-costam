@@ -2,6 +2,7 @@
 #include <glad/glad.h>
 #include <stdexcept>
 #include <glm/gtc/type_ptr.hpp>
+#include <array>
 
 Shader::Shader() {
     program = glCreateProgram();
@@ -21,6 +22,13 @@ void Shader::link() const {
 
 void Shader::validate() const {
     glValidateProgram(program);
+}
+
+void Shader::createSamplers() {
+    std::array<int, 32> samplers;
+    for (uint16_t i = 0; i < 32; ++i)
+        samplers[i] = i;
+    setUniform1iv("u_Textures", samplers);
 }
 
 void Shader::bind() const {

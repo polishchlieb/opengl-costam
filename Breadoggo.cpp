@@ -31,5 +31,13 @@ void Breadoggo::draw() {
 	Entity::draw();
 }
 
+void Breadoggo::handleEvent(std::shared_ptr<Event> event) {
+	// std::cout << event->type << std::endl;
+}
+
 Breadoggo::Breadoggo(glm::vec2 position)
-	: Entity{position, {100.f, 100.f}, _textureID} {}
+  : Entity{position, {100.f, 100.f}, _textureID} {
+	EventDispatcher::addListener([this](std::shared_ptr<Event> event) {
+		handleEvent(event);
+	});
+}

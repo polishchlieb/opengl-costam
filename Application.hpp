@@ -14,6 +14,7 @@
 #include "audio/AudioSource.hpp"
 
 #include <thread>
+#include "SimpleClient.hpp"
 
 class Application {
 public:
@@ -25,12 +26,7 @@ public:
 private:
 	GLFWwindow* window;
 
-	std::unique_ptr<Texture> background;
-	std::unique_ptr<Texture> sun;
-	std::unique_ptr<Texture> breadoggo;
-
-	std::unique_ptr<Font> font;
-	std::unique_ptr<Texture> comicSans;
+	std::unique_ptr<Texture> background, sun, breadoggo, menuBackground;
 
 	Camera2D camera{glm::vec2{-480.f, -270.f}};
 	glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
@@ -70,7 +66,7 @@ private:
 	void drawGUI();
 	void processEvents();
 
-	void initOpenAL();
+	void initAudio();
 	void initOpenGL();
 	void initRendering();
 	void initImGui();
@@ -79,4 +75,7 @@ private:
 	AudioSource amogus;
 
 	char* serverIP = nullptr;
+	char* serverPort = nullptr;
+	std::unique_ptr<SimpleClient> socket;
+	std::thread socketThread;
 };

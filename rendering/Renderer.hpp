@@ -3,7 +3,19 @@
 
 #include <unordered_set>
 #include <glm/glm.hpp>
+#include <array>
+#include "Vertex.hpp"
 #include "Glyph.hpp"
+
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+struct Character {
+	unsigned int textureID;
+	glm::vec2 size;
+	glm::vec2 bearing;
+	unsigned int advance;
+};
 
 class Renderer {
 public:
@@ -18,8 +30,11 @@ public:
 	static void drawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID);
 	static void drawScrollingQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID, float scrollX);
 	static void drawGlyph(const glm::vec2& position, const glm::vec2& size, const Glyph& glyph);
+	static void drawText(glm::vec2 position, const std::string& value, float scale, const glm::vec4& color);
 
 	static void clear();
+private:
+	static void drawGlyph(glm::vec2 position, const Character& ch, float scale, const glm::vec4& color);
 };
 
 #endif //UNTITLED_RENDERER_HPP
