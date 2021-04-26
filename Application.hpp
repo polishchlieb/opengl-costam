@@ -77,5 +77,6 @@ private:
 	char* serverIP = nullptr;
 	char* serverPort = nullptr;
 	std::unique_ptr<SimpleClient> socket;
+	uint32_t playerId;
 	std::thread socketThread;
 };

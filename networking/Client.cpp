@@ -42,9 +42,6 @@ void Client::connect() {
 	while (true) {
 		int result = recv(handle, buffer, bufferSize, 0);
 		if (result > 0) {
-			/* handleServerMessage(std::string{
-				buffer, static_cast<unsigned int>(result)
-			}); */
 			handleServerMessage(Message{ buffer });
 		} else if (result == 0) {
 			disconnect();
