@@ -18,14 +18,10 @@
 
 class Application {
 public:
-	explicit Application(GLFWwindow* window);
-
 	void init();
 	void loop();
 	void shutdown();
 private:
-	GLFWwindow* window;
-
 	std::unique_ptr<Texture> background, sun, breadoggo, menuBackground;
 
 	Camera2D camera{glm::vec2{-480.f, -270.f}};
@@ -36,6 +32,7 @@ private:
 	Shader shader;
 
 	std::unique_ptr<Breadoggo> entity;
+	std::vector<Breadoggo> players;
 
 	float deltaTime = 0.f;
 	float lastFrame = 0.f;

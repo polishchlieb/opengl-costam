@@ -25,6 +25,7 @@
     <ClInclude Include="event\EventListener.hpp" />
     <ClInclude Include="event\EventDispatcher.hpp" />
     <ClInclude Include="SimpleClient.hpp" />
+    <ClInclude Include="rendering\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -42,5 +43,7 @@
     <ClCompile Include="audio\AudioContext.cpp" />
     <ClCompile Include="audio\AudioSource.cpp" />
     <ClCompile Include="event\EventDispatcher.cpp" />
+    <ClCompile Include="rendering\Window.cpp" />
+    <ClCompile Include="SimpleClient.cpp" />
   </ItemGroup>
 </Project>

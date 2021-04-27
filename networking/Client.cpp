@@ -37,24 +37,26 @@ void Client::connect() {
 		throw std::runtime_error("unable to connect to server");
 	handleConnection();
 
-	static const size_t bufferSize = 512;
+	static const size_t bufferSize = 1024;
 	char buffer[bufferSize];
 	while (true) {
 		int result = recv(handle, buffer, bufferSize, 0);
 		if (result > 0) {
-			handleServerMessage(Message{ buffer });
-		} else if (result == 0) {
-			disconnect();
-			handleDisconnection();
+			handleServerMessage(Message{buffer});
+		} else if (result == -1) {
+			break;
 		} else {
 			handleError(WSAGetLastError());
 		}
 	}
+
+	handleDisconnection();
 }
 
 void Client::disconnect() {
-	if (shutdown(handle, SD_SEND) == SOCKET_ERROR)
-		throw std::runtime_error("failed to disconnect");
+	/* if (shutdown(handle, SD_SEND) == SOCKET_ERROR)
+		throw std::runtime_error("failed to disconnect"); */
+	shutdown(handle, SD_SEND);
 
 	closesocket(handle);
 	WSACleanup();

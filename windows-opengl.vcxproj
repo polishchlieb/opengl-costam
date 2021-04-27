@@ -159,6 +159,7 @@
     <ClInclude Include="event\EventListener.hpp" />
     <ClInclude Include="networking\Client.hpp" />
     <ClInclude Include="networking\Message.hpp" />
+    <ClInclude Include="rendering\Window.hpp" />
     <ClInclude Include="scene\Camera.hpp" />
     <ClInclude Include="scene\Entity.hpp" />
     <ClInclude Include="Application.hpp" />
@@ -183,6 +184,7 @@
     <ClCompile Include="event\EventDispatcher.cpp" />
     <ClCompile Include="networking\Client.cpp" />
     <ClCompile Include="rendering\stb_image.cpp" />
+    <ClCompile Include="rendering\Window.cpp" />
     <ClCompile Include="scene\Camera.cpp" />
     <ClCompile Include="scene\Entity.cpp" />
     <ClCompile Include="Application.cpp" />
@@ -192,6 +194,7 @@
     <ClCompile Include="shader\Shader.cpp" />
     <ClCompile Include="shader\ShaderComponent.cpp" />
     <ClCompile Include="rendering\Texture.cpp" />
+    <ClCompile Include="SimpleClient.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
