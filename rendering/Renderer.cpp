@@ -86,11 +86,7 @@ void Renderer::init() {
 	uint32_t color = 0xffffffff;
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color);
 
-	// data.textureSlots.reserve(maxTextures);
-	// data.textureSlots[0] = data.whiteTexture;
 	data.textureSlots.insert(data.whiteTexture);
-	// for (size_t i = 1; i < maxTextures; ++i)
-		// data.textureSlots[i] = 0;
 
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft))
@@ -101,7 +97,6 @@ void Renderer::init() {
 		throw std::runtime_error("couldn't load the font");
 
 	FT_Set_Pixel_Sizes(face, 0, 48);
-	// FT_Bitmap_Convert()
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 

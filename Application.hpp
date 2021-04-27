@@ -5,7 +5,6 @@
 #include "scene/Camera.hpp"
 #include <glm/glm.hpp>
 #include "shader/Shader.hpp"
-#include "Breadoggo.hpp"
 #include "rendering/Font.hpp"
 
 #include <AL/al.h>
@@ -14,7 +13,6 @@
 #include "audio/AudioSource.hpp"
 
 #include <thread>
-#include "SimpleClient.hpp"
 
 class Application {
 public:
@@ -22,17 +20,12 @@ public:
 	void loop();
 	void shutdown();
 private:
-	std::unique_ptr<Texture> background, sun, breadoggo, menuBackground;
-
 	Camera2D camera{glm::vec2{-480.f, -270.f}};
 	glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0, 0));
 	glm::mat4 mvp = glm::mat4{};
 
 	Shader shader;
-
-	std::unique_ptr<Breadoggo> entity;
-	std::vector<Breadoggo> players;
 
 	float deltaTime = 0.f;
 	float lastFrame = 0.f;
@@ -69,11 +62,11 @@ private:
 	void initImGui();
 
 	AudioContext context;
-	AudioSource amogus;
 
-	char* serverIP = nullptr;
-	char* serverPort = nullptr;
-	std::unique_ptr<SimpleClient> socket;
-	uint32_t playerId;
-	std::thread socketThread;
+	struct Cell {
+		int edgeId[4];
+		bool edgeExists[4];
+		bool exists = false;
+	};
+	std::vector<Cell> cells;
 };

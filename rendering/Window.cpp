@@ -43,3 +43,18 @@ void Window::swapBuffers() {
 bool Window::shouldClose() {
 	return glfwWindowShouldClose(window);
 }
+
+glm::vec2 Window::getMousePosition() {
+	double x, y;
+	glfwGetCursorPos(window, &x, &y);
+	return {static_cast<float>(x), static_cast<float>(y)};
+}
+
+std::unordered_map<int, bool> Window::previousMouseState;
+
+bool Window::getMouseButton(int button) {
+	auto state = glfwGetMouseButton(window, button);
+	auto result = state == GLFW_RELEASE && previousMouseState[button] == GLFW_PRESS;
+	previousMouseState[button] = state;
+	return result;
+}

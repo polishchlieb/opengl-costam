@@ -154,7 +154,6 @@
     <ClInclude Include="audio\AudioContext.hpp" />
     <ClInclude Include="audio\AudioListener.hpp" />
     <ClInclude Include="audio\AudioSource.hpp" />
-    <ClInclude Include="Breadoggo.hpp" />
     <ClInclude Include="event\EventDispatcher.hpp" />
     <ClInclude Include="event\EventListener.hpp" />
     <ClInclude Include="networking\Client.hpp" />
@@ -173,14 +172,12 @@
     <ClInclude Include="shader\Shader.hpp" />
     <ClInclude Include="shader\ShaderComponent.hpp" />
     <ClInclude Include="rendering\Texture.hpp" />
-    <ClInclude Include="SimpleClient.hpp" />
     <ClInclude Include="vendor\stb_image\stb_image.h" />
     <ClInclude Include="rendering\Vertex.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="audio\AudioContext.cpp" />
     <ClCompile Include="audio\AudioSource.cpp" />
-    <ClCompile Include="Breadoggo.cpp" />
     <ClCompile Include="event\EventDispatcher.cpp" />
     <ClCompile Include="networking\Client.cpp" />
     <ClCompile Include="rendering\stb_image.cpp" />
@@ -194,7 +191,6 @@
     <ClCompile Include="shader\Shader.cpp" />
     <ClCompile Include="shader\ShaderComponent.cpp" />
     <ClCompile Include="rendering\Texture.cpp" />
-    <ClCompile Include="SimpleClient.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

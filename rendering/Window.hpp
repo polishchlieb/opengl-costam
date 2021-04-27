@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <unordered_map>
 
 class Window {
 public:
@@ -16,7 +17,11 @@ public:
 
 	static const glm::vec2& getSize() { return size; }
 	static GLFWwindow* getWindow() { return window; }
+
+	static glm::vec2 getMousePosition();
+	static bool getMouseButton(int button);
 private:
 	static GLFWwindow* window;
 	static glm::vec2 size;
+	static std::unordered_map<int, bool> previousMouseState;
 };
