@@ -14,6 +14,7 @@ struct RendererData {
 	GLuint quadVA = 0;
 	GLuint quadVB = 0;
 	GLuint quadIB = 0;
+	GLuint dynamicIB = 0;
 
 	GLuint whiteTexture = 0;
 	uint32_t whiteTextureSlot = 0;
@@ -61,7 +62,7 @@ void Renderer::init() {
 	glEnableVertexArrayAttrib(data.quadVA, 3);
 	glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*) offsetof(Vertex, texIndex));
 
-	// move this to heap if there is a stack overflo
+	// move this to heap if there is a stack overflo 
 	uint32_t indices[maxIndices];
 	uint32_t offset = 0;
 	for (uint32_t i = 0, offset = 0; i < maxIndices; i += 6, offset += 4) {
@@ -340,6 +341,42 @@ void Renderer::drawText(glm::vec2 position, const std::string& value, float scal
 		drawGlyph(position, ch, scale, color);
 		position.x += (ch.advance >> 6) * scale;
 	}
+}
+
+void Renderer::drawTriangle(const std::array<glm::vec2, 3>& points, const glm::vec4& color) {
+	if (data.indexCount >= maxIndices) {
+		endBatch();
+		render();
+		beginBatch();
+	}
+
+	float textureIndex = 0.f;
+
+	data.quadBufferPtr->position = points[0];
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = { 0.f, 0.f };
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = points[1];
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = { 1.f, 0.f };
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = points[2];
+	data.quadBufferPtr->color = color;
+	data.quadBufferPtr->texCoords = { 1.f, 1.f };
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.quadBufferPtr->position = points[0];
+	data.quadBufferPtr->color = {0.f, 0.f, 0.f, 0.f};
+	data.quadBufferPtr->texCoords = { 0.f, 1.f };
+	data.quadBufferPtr->texIndex = textureIndex;
+	data.quadBufferPtr++;
+
+	data.indexCount += 6;
 }
 
 void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID) {

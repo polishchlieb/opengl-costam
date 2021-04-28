@@ -62,11 +62,4 @@ private:
 	void initImGui();
 
 	AudioContext context;
-
-	struct Cell {
-		int edgeId[4];
-		bool edgeExists[4];
-		bool exists = false;
-	};
-	std::vector<Cell> cells;
 };

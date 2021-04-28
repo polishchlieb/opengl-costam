@@ -31,6 +31,7 @@ public:
 	static void drawScrollingQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID, float scrollX);
 	static void drawGlyph(const glm::vec2& position, const glm::vec2& size, const Glyph& glyph);
 	static void drawText(glm::vec2 position, const std::string& value, float scale, const glm::vec4& color);
+	static void drawTriangle(const std::array<glm::vec2, 3>& points, const glm::vec4& color);
 
 	static void clear();
 private:
