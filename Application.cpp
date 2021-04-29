@@ -231,6 +231,9 @@ void Application::shutdown() {
 	Renderer::shutdown();
 
 	glfwTerminate();
+
+	delete chungus;
+	delete chungusTexture;
 }
 
 void Application::draw() {
@@ -244,15 +247,17 @@ void Application::draw() {
 	auto mouse = Window::getMousePosition();
 	mouse.y = 540.f - mouse.y;
 
-	if (Window::getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
+	static bool polyMapGenerated = false;
+	if (!polyMapGenerated || Window::getMouseButton(GLFW_MOUSE_BUTTON_LEFT)) {
 		int index = ((int)mouse.y / 60) * 16 + ((int)mouse.x / 60);
 		cells[index].exists = !cells[index].exists;
+		getPolyMap(0, 0, 16, 9, 60.f, 16);
+		polyMapGenerated = true;
 	}
 
-	getPolyMap(0, 0, 16, 9, 60.f, 16);
-
-	if (Window::isKeyPressed(GLFW_KEY_E))
-		calculateVisibilityPolygon(mouse.x, mouse.y, 1000.f);
+	calculateVisibilityPolygon(
+		chungus->getPosition().x, chungus->getPosition().y + 0.1f, 1000.f
+	);
 
 	auto rayCast = visibilityPolygonPoints.size();
 	auto it = std::unique(
@@ -264,10 +269,10 @@ void Application::draw() {
 	);
 	visibilityPolygonPoints.resize(std::distance(visibilityPolygonPoints.begin(), it));
 
-	if (Window::isKeyPressed(GLFW_KEY_E)) {
+	if (visibilityPolygonPoints.size() > 0) {
 		for (size_t i = 0; i < visibilityPolygonPoints.size() - 1; ++i) {
 			Renderer::drawTriangle({
-				mouse,
+				chungus->getPosition(),
 				glm::vec2{
 					std::get<1>(visibilityPolygonPoints[i]),
 					std::get<2>(visibilityPolygonPoints[i])
@@ -280,7 +285,7 @@ void Application::draw() {
 		}
 
 		Renderer::drawTriangle({
-			mouse,
+			chungus->getPosition(),
 			glm::vec2{
 				std::get<1>(visibilityPolygonPoints[visibilityPolygonPoints.size() - 1]),
 				std::get<2>(visibilityPolygonPoints[visibilityPolygonPoints.size() - 1])
@@ -302,6 +307,33 @@ void Application::draw() {
 					{1.f, 0.f, 0.f, 1.f}
 				);
 		}
+
+	Renderer::endBatch();
+	Renderer::render();
+
+	lightShader.bind();
+	lightShader.setUniformMat4f("u_MVP", mvp);
+	Renderer::beginBatch();
+
+	float radius = 100.f;
+	Renderer::drawQuad(
+		{chungus->getPosition().x - 100.f, chungus->getPosition().y - 100.f},
+		{300.f, 300.f},
+		{1.f, 0.f, 0.f, 1.f}
+	);
+	Renderer::drawQuad(
+		{mouse.x - 100.f, mouse.y - 100.f},
+		{200.f, 200.f},
+		{0.f, 1.f, 0.f, 1.f}
+	);
+
+	Renderer::endBatch();
+	Renderer::render();
+
+	Renderer::beginBatch();
+	shader.bind();
+
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	for (const auto& edge : edges) {
 		if (edge.startX == edge.endX) {
@@ -333,6 +365,8 @@ void Application::draw() {
 		);
 	}
 
+	chungus->draw();
+
 	Renderer::endBatch();
 	Renderer::render();
 }
@@ -363,6 +397,39 @@ void Application::drawGUI() {
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+static enum class Direction {
+	up,
+	down,
+	right,
+	left
+};
+
+static bool canChungusMove(const glm::vec2& position, const glm::vec2& size, Direction direction) {
+	for (const auto& edge : edges) {
+		if (edge.startY == edge.endY) {
+			// horizontal edge
+			if (position.x + size.x > edge.startX && position.x < edge.endX) {
+				if (direction == Direction::down && fabs(position.y - edge.startY) <= 0)
+					return false;
+				if (direction == Direction::up && fabs(position.y + size.y - edge.startY) <= 0)
+					return false;
+			}
+		} else if (edge.startX == edge.endX) {
+			// vertical edge
+			if (position.y + size.y > edge.startY && position.y < edge.endY) {
+				if (direction == Direction::left && fabs(position.x - edge.startX) <= 0)
+					return false;
+				if (direction == Direction::right && fabs(position.x + size.x - edge.startX) <= 0)
+					return false;
+			}
+		} else {
+			throw std::runtime_error("no i klops!");
+		}
+	}
+	
+	return true;
+}
+
 void Application::processEvents() {
 	glfwPollEvents();
 	
@@ -370,21 +437,29 @@ void Application::processEvents() {
 		EventDispatcher::dispatch(
 			std::make_shared<KeyPressedEvent>(GLFW_KEY_W)
 		);
+		if (canChungusMove(chungus->getPosition(), {100.f, 100.f}, Direction::up))
+			chungus->move({0.f, 5.f});
 	}
 	if (Window::isKeyPressed(GLFW_KEY_S)) {
 		EventDispatcher::dispatch(
 			std::make_shared<KeyPressedEvent>(GLFW_KEY_S)
 		);
+		if (canChungusMove(chungus->getPosition(), {100.f, 100.f}, Direction::down))
+			chungus->move({0.f, -5.f});
 	}
 	if (Window::isKeyPressed(GLFW_KEY_A)) {
 		EventDispatcher::dispatch(
 			std::make_shared<KeyPressedEvent>(GLFW_KEY_A)
 		);
+		if (canChungusMove(chungus->getPosition(), {100.f, 100.f}, Direction::left))
+			chungus->move({-5.f, 0.f});
 	}
 	if (Window::isKeyPressed(GLFW_KEY_D)) {
 		EventDispatcher::dispatch(
 			std::make_shared<KeyPressedEvent>(GLFW_KEY_A)
 		);
+		if (canChungusMove(chungus->getPosition(), {100.f, 100.f}, Direction::right))
+			chungus->move({5.f, 0.f});
 	}
 	if (Window::isKeyPressed(GLFW_KEY_SPACE)) {
 		EventDispatcher::dispatch(
@@ -428,6 +503,19 @@ void Application::initRendering() {
 	shader.bind();
 	shader.createSamplers();
 
+	lightShader.attach(ShaderComponent::fromFile(
+		GL_VERTEX_SHADER,
+		"light.vertex.shader"
+	));
+	lightShader.attach(ShaderComponent::fromFile(
+		GL_FRAGMENT_SHADER,
+		"light.fragment.shader"
+	));
+
+	lightShader.link();
+	lightShader.validate();
+	lightShader.bind();
+
 	cells.reserve(144);
 	for (uint8_t y = 0; y < 9; ++y)
 		for (uint8_t x = 0; x < 16; ++x)
@@ -445,6 +533,11 @@ void Application::initRendering() {
 		cells[x * worldWidth + 1].exists = true;
 		cells[x * worldWidth + (worldWidth - 2)].exists = true;
 	}
+
+	chungusTexture = new Texture{"res/textures/big-chungus.png"};
+	chungus = new Entity{
+		{300.f, 200.f}, {100.f, 100.f}, chungusTexture->getId()
+	};
 }
 
 void Application::initImGui() {

@@ -18,6 +18,7 @@ Texture::Texture(const std::string& path, GLint wrap)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     if (buffer)
         stbi_image_free(buffer);

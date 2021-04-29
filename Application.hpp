@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include "shader/Shader.hpp"
 #include "rendering/Font.hpp"
+#include "scene/Entity.hpp"
 
 #include <AL/al.h>
 #include <AL/alc.h>
@@ -25,7 +26,11 @@ private:
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0, 0));
 	glm::mat4 mvp = glm::mat4{};
 
+	Texture* chungusTexture;
+	Entity* chungus;
+
 	Shader shader;
+	Shader lightShader;
 
 	float deltaTime = 0.f;
 	float lastFrame = 0.f;

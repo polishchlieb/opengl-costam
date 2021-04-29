@@ -196,13 +196,13 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const 
 
 	data.quadBufferPtr->position = {position.x, position.y};
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = {0.f, 0.f};
+	data.quadBufferPtr->texCoords = {-1.f, -1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.quadBufferPtr->position = {position.x + size.x, position.y};
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = {1.f, 0.f};
+	data.quadBufferPtr->texCoords = {1.f, -1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
@@ -214,7 +214,7 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const 
 
 	data.quadBufferPtr->position = {position.x, position.y + size.y};
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = {0.f, 1.f};
+	data.quadBufferPtr->texCoords = {-1.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
