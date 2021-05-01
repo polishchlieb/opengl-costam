@@ -10,7 +10,8 @@ public:
 	void move(glm::vec2 difference);
 	virtual void draw();
 
-	const glm::vec2& getPosition() { return position; }
+	const glm::vec2& getPosition() const { return position; }
+	const glm::vec2& getSize() const { return size; }
 protected:
 	glm::vec2 position;
 private:

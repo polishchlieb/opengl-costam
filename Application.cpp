@@ -231,9 +231,6 @@ void Application::shutdown() {
 	Renderer::shutdown();
 
 	glfwTerminate();
-
-	delete chungus;
-	delete chungusTexture;
 }
 
 void Application::draw() {
@@ -297,17 +294,6 @@ void Application::draw() {
 		}, {1.f, 1.f, 1.f, 1.f});
 	}
 
-	for (size_t x = 0; x < 16; ++x)
-		for (size_t y = 0; y < 9; ++y) {
-			size_t index = y * 16 + x;
-			if (cells[index].exists)
-				Renderer::drawQuad(
-					{60.f * x, 60.f * y},
-					{60.f, 60.f},
-					{1.f, 0.f, 0.f, 1.f}
-				);
-		}
-
 	Renderer::endBatch();
 	Renderer::render();
 
@@ -318,7 +304,7 @@ void Application::draw() {
 	float radius = 100.f;
 	Renderer::drawQuad(
 		{chungus->getPosition().x - 100.f, chungus->getPosition().y - 100.f},
-		{300.f, 300.f},
+		{chungus->getSize().x + 200.f, chungus->getSize().y + 200.f},
 		{1.f, 0.f, 0.f, 1.f}
 	);
 	Renderer::drawQuad(
@@ -333,7 +319,16 @@ void Application::draw() {
 	Renderer::beginBatch();
 	shader.bind();
 
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	for (size_t x = 0; x < 16; ++x)
+		for (size_t y = 0; y < 9; ++y) {
+			size_t index = y * 16 + x;
+			if (cells[index].exists)
+				Renderer::drawQuad(
+					{ 60.f * x, 60.f * y },
+					{ 60.f, 60.f },
+					{ 1.f, 0.f, 0.f, 1.f }
+			);
+		}
 
 	for (const auto& edge : edges) {
 		if (edge.startX == edge.endX) {
@@ -404,30 +399,15 @@ static enum class Direction {
 	left
 };
 
-static bool canChungusMove(const glm::vec2& position, const glm::vec2& size, Direction direction) {
+static void fixChungus(const std::unique_ptr<Entity>& chungus, const glm::vec2& prevMove) {
 	for (const auto& edge : edges) {
-		if (edge.startY == edge.endY) {
-			// horizontal edge
-			if (position.x + size.x > edge.startX && position.x < edge.endX) {
-				if (direction == Direction::down && fabs(position.y - edge.startY) <= 0)
-					return false;
-				if (direction == Direction::up && fabs(position.y + size.y - edge.startY) <= 0)
-					return false;
-			}
-		} else if (edge.startX == edge.endX) {
-			// vertical edge
-			if (position.y + size.y > edge.startY && position.y < edge.endY) {
-				if (direction == Direction::left && fabs(position.x - edge.startX) <= 0)
-					return false;
-				if (direction == Direction::right && fabs(position.x + size.x - edge.startX) <= 0)
-					return false;
-			}
-		} else {
-			throw std::runtime_error("no i klops!");
+		if (
+			chungus->getPosition().y + chungus->getSize().y >= edge.startY && chungus->getPosition().y <= edge.endY
+			&& chungus->getPosition().x + chungus->getSize().x >= edge.startX && chungus->getPosition().x <= edge.endX
+		) {
+			chungus->move(-prevMove);
 		}
 	}
-	
-	return true;
 }
 
 void Application::processEvents() {
@@ -437,29 +417,31 @@ void Application::processEvents() {
 		EventDispatcher::dispatch(
 			std::make_shared<KeyPressedEvent>(GLFW_KEY_W)
 		);
-		if (canChungusMove(chungus->getPosition(), {100.f, 100.f}, Direction::up))
-			chungus->move({0.f, 5.f});
+
+		chungus->move({0.f, 5.f});
+		fixChungus(chungus, {0.f, 5.f});
 	}
 	if (Window::isKeyPressed(GLFW_KEY_S)) {
 		EventDispatcher::dispatch(
 			std::make_shared<KeyPressedEvent>(GLFW_KEY_S)
 		);
-		if (canChungusMove(chungus->getPosition(), {100.f, 100.f}, Direction::down))
-			chungus->move({0.f, -5.f});
+
+		chungus->move({0.f, -5.f});
+		fixChungus(chungus, {0.f, -5.f});
 	}
 	if (Window::isKeyPressed(GLFW_KEY_A)) {
 		EventDispatcher::dispatch(
 			std::make_shared<KeyPressedEvent>(GLFW_KEY_A)
 		);
-		if (canChungusMove(chungus->getPosition(), {100.f, 100.f}, Direction::left))
-			chungus->move({-5.f, 0.f});
+		chungus->move({-5.f, 0.f});
+		fixChungus(chungus, {-5.f, 0.f});
 	}
 	if (Window::isKeyPressed(GLFW_KEY_D)) {
 		EventDispatcher::dispatch(
 			std::make_shared<KeyPressedEvent>(GLFW_KEY_A)
 		);
-		if (canChungusMove(chungus->getPosition(), {100.f, 100.f}, Direction::right))
-			chungus->move({5.f, 0.f});
+		chungus->move({5.f, 0.f});
+		fixChungus(chungus, {5.f, 0.f});
 	}
 	if (Window::isKeyPressed(GLFW_KEY_SPACE)) {
 		EventDispatcher::dispatch(
@@ -534,10 +516,10 @@ void Application::initRendering() {
 		cells[x * worldWidth + (worldWidth - 2)].exists = true;
 	}
 
-	chungusTexture = new Texture{"res/textures/big-chungus.png"};
-	chungus = new Entity{
-		{300.f, 200.f}, {100.f, 100.f}, chungusTexture->getId()
-	};
+	chungusTexture = std::make_unique<Texture>("res/textures/chungus.png");
+	chungus = std::make_unique<Entity>(
+		glm::vec2{300.f, 200.f}, glm::vec2{41.f, 70.f}, chungusTexture->getId()
+	);
 }
 
 void Application::initImGui() {

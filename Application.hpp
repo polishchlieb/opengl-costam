@@ -26,8 +26,8 @@ private:
 	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0, 0));
 	glm::mat4 mvp = glm::mat4{};
 
-	Texture* chungusTexture;
-	Entity* chungus;
+	std::unique_ptr<Texture> chungusTexture;
+	std::unique_ptr<Entity> chungus;
 
 	Shader shader;
 	Shader lightShader;
