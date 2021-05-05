@@ -2,7 +2,7 @@
 #include <memory>
 #include "rendering/Texture.hpp"
 #include <GLFW/glfw3.h>
-#include "scene/Camera.hpp"
+#include "scene/Camera2D.hpp"
 #include <glm/glm.hpp>
 #include "shader/Shader.hpp"
 #include "rendering/Font.hpp"
@@ -21,10 +21,10 @@ public:
 	void loop();
 	void shutdown();
 private:
-	Camera2D camera{glm::vec2{-480.f, -270.f}};
-	glm::mat4 proj = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.f, 0, 0));
-	glm::mat4 mvp = glm::mat4{};
+	glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+	glm::mat4 proj = glm::perspective(glm::radians(45.0f), 960.f / 540.0f, 0.1f, 100.0f);
+	glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	glm::mat4 mvp{};
 
 	std::unique_ptr<Texture> chungusTexture;
 	std::unique_ptr<Entity> chungus;
@@ -67,4 +67,6 @@ private:
 	void initImGui();
 
 	AudioContext context;
+
+	std::array<float, 180> vertices;
 };

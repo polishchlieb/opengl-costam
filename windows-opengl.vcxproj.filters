@@ -14,7 +14,6 @@
     <ClInclude Include="rendering\Renderer.hpp" />
     <ClInclude Include="rendering\Vertex.hpp" />
     <ClInclude Include="rendering\Texture.hpp" />
-    <ClInclude Include="scene\Camera.hpp" />
     <ClInclude Include="scene\Entity.hpp" />
     <ClInclude Include="networking\Message.hpp" />
     <ClInclude Include="networking\Client.hpp" />
@@ -24,6 +23,8 @@
     <ClInclude Include="event\EventListener.hpp" />
     <ClInclude Include="event\EventDispatcher.hpp" />
     <ClInclude Include="rendering\Window.hpp" />
+    <ClInclude Include="scene\Camera2D.hpp" />
+    <ClInclude Include="scene\Camera3D.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -33,7 +34,6 @@
     <ClCompile Include="rendering\Font.cpp" />
     <ClCompile Include="rendering\Renderer.cpp" />
     <ClCompile Include="rendering\Texture.cpp" />
-    <ClCompile Include="scene\Camera.cpp" />
     <ClCompile Include="scene\Entity.cpp" />
     <ClCompile Include="networking\Client.cpp" />
     <ClCompile Include="rendering\stb_image.cpp" />
@@ -41,5 +41,7 @@
     <ClCompile Include="audio\AudioSource.cpp" />
     <ClCompile Include="event\EventDispatcher.cpp" />
     <ClCompile Include="rendering\Window.cpp" />
+    <ClCompile Include="scene\Camera2D.cpp" />
+    <ClCompile Include="scene\Camera3D.cpp" />
   </ItemGroup>
 </Project>

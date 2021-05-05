@@ -34,7 +34,7 @@ static std::unordered_map<char, Character> characters;
 
 static RendererData data;
 
-void Renderer::init() {
+void Renderer2D::init() {
 	if (data.quadBuffer != nullptr)
 		throw std::runtime_error("Renderer::init was called twice");
 
@@ -151,7 +151,7 @@ void Renderer::init() {
 	FT_Done_FreeType(ft);
 }
 
-void Renderer::shutdown() {
+void Renderer2D::shutdown() {
 	glDeleteVertexArrays(1, &data.quadVA);
 	glDeleteBuffers(1, &data.quadVB);
 	glDeleteBuffers(1, &data.quadIB);
@@ -161,17 +161,17 @@ void Renderer::shutdown() {
 	delete[] data.quadBuffer;
 }
 
-void Renderer::beginBatch() {
+void Renderer2D::beginBatch() {
 	data.quadBufferPtr = data.quadBuffer;
 }
 
-void Renderer::endBatch() {
+void Renderer2D::endBatch() {
 	GLsizeiptr size = (uint8_t*)data.quadBufferPtr - (uint8_t*)data.quadBuffer;
 	glBindBuffer(GL_ARRAY_BUFFER, data.quadVB);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, size, data.quadBuffer);
 }
 
-void Renderer::render() {
+void Renderer2D::render() {
 	uint8_t i = 0;
 	for (const auto textureID : data.textureSlots) {
 		glBindTextureUnit(i, textureID);
@@ -185,7 +185,7 @@ void Renderer::render() {
 	data.textureSlotIndex = 1;
 }
 
-void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) {
+void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color) {
 	if (data.indexCount >= maxIndices) {
 		endBatch();
 		render();
@@ -194,25 +194,25 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const 
 
 	float textureIndex = 0.f;
 
-	data.quadBufferPtr->position = {position.x, position.y};
+	data.quadBufferPtr->position = {position.x, position.y, 0.f};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {-1.f, -1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = {position.x + size.x, position.y};
+	data.quadBufferPtr->position = {position.x + size.x, position.y, 0.f};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {1.f, -1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = {position.x + size.x, position.y + size.y};
+	data.quadBufferPtr->position = {position.x + size.x, position.y + size.y, 0.f};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {1.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = {position.x, position.y + size.y};
+	data.quadBufferPtr->position = {position.x, position.y + size.y, 0.f};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {-1.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
@@ -221,7 +221,7 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, const 
 	data.indexCount += 6;
 }
 
-void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID, float scrollX) {
+void Renderer2D::drawScrollingQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID, float scrollX) {
 	if (data.indexCount >= maxIndices || data.textureSlotIndex > static_cast<GLuint>(maxTextures)) {
 		endBatch();
 		render();
@@ -251,34 +251,34 @@ void Renderer::drawScrollingQuad(const glm::vec2& position, const glm::vec2& siz
 		data.textureSlots.insert(textureID);
 	}
 
-	data.quadBufferPtr->position = { position.x, position.y };
+	data.quadBufferPtr->position = {position.x, position.y, 0.f};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = { 0.f + scrollX, 0.f };
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = { position.x + size.x, position.y };
+	data.quadBufferPtr->position = {position.x + size.x, position.y, 0.f};
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = { 1.f + scrollX, 0.f };
+	data.quadBufferPtr->texCoords = {1.f + scrollX, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = { position.x + size.x, position.y + size.y };
+	data.quadBufferPtr->position = {position.x + size.x, position.y + size.y, 0.f};
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = { 1.f + scrollX, 1.f };
+	data.quadBufferPtr->texCoords = {1.f + scrollX, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = { position.x, position.y + size.y };
+	data.quadBufferPtr->position = {position.x, position.y + size.y, 0.f};
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = { 0.f + scrollX, 1.f };
+	data.quadBufferPtr->texCoords = {0.f + scrollX, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
 	data.indexCount += 6;
 }
 
-void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const Glyph& glyph) {
+void Renderer2D::drawGlyph(const glm::vec2& position, const glm::vec2& size, const Glyph& glyph) {
 	if (data.indexCount >= maxIndices || data.textureSlotIndex > static_cast<GLuint>(maxTextures)) {
 		endBatch();
 		render();
@@ -308,25 +308,25 @@ void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const
 		return static_cast<float>(value) / static_cast<float>(glyph.spriteWidth);
 	};
 
-	data.quadBufferPtr->position = {position.x, position.y};
+	data.quadBufferPtr->position = {position.x, position.y, 0.f};
 	data.quadBufferPtr->color = glyph.color;
 	data.quadBufferPtr->texCoords = {toSpriteSize(x), toSpriteSize(y)};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = {position.x + size.x, position.y};
+	data.quadBufferPtr->position = {position.x + size.x, position.y, 0.f};
 	data.quadBufferPtr->color = glyph.color;
 	data.quadBufferPtr->texCoords = {toSpriteSize(x + glyph.baseWidth), toSpriteSize(y)};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = {position.x + size.x, position.y + size.y};
+	data.quadBufferPtr->position = {position.x + size.x, position.y + size.y, 0.f};
 	data.quadBufferPtr->color = glyph.color;
 	data.quadBufferPtr->texCoords = {toSpriteSize(x + glyph.baseWidth), toSpriteSize(y + glyph.height)};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = {position.x, position.y + size.y};
+	data.quadBufferPtr->position = {position.x, position.y + size.y, 0.f};
 	data.quadBufferPtr->color = glyph.color;
 	data.quadBufferPtr->texCoords = {toSpriteSize(x), toSpriteSize(y + glyph.height)};
 	data.quadBufferPtr->texIndex = textureIndex;
@@ -335,7 +335,7 @@ void Renderer::drawGlyph(const glm::vec2& position, const glm::vec2& size, const
 	data.indexCount += 6;
 }
 
-void Renderer::drawText(glm::vec2 position, const std::string& value, float scale, const glm::vec4& color) {
+void Renderer2D::drawText(glm::vec2 position, const std::string& value, float scale, const glm::vec4& color) {
 	for (char c : value) {
 		Character ch = characters[c];
 		drawGlyph(position, ch, scale, color);
@@ -343,7 +343,7 @@ void Renderer::drawText(glm::vec2 position, const std::string& value, float scal
 	}
 }
 
-void Renderer::drawTriangle(const std::array<glm::vec2, 3>& points, const glm::vec4& color) {
+void Renderer2D::drawTriangle(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& p3, const glm::vec4& color) {
 	if (data.indexCount >= maxIndices) {
 		endBatch();
 		render();
@@ -352,25 +352,25 @@ void Renderer::drawTriangle(const std::array<glm::vec2, 3>& points, const glm::v
 
 	float textureIndex = 0.f;
 
-	data.quadBufferPtr->position = points[0];
+	data.quadBufferPtr->position = {p1.x, p1.y, 0.f};
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = { 0.f, 0.f };
+	data.quadBufferPtr->texCoords = {0.f, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = points[1];
+	data.quadBufferPtr->position = {p2.x, p2.y, 0.f};
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = { 1.f, 0.f };
+	data.quadBufferPtr->texCoords = {1.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = points[2];
+	data.quadBufferPtr->position = {p3.x, p3.y, 0.f};
 	data.quadBufferPtr->color = color;
-	data.quadBufferPtr->texCoords = { 1.f, 1.f };
+	data.quadBufferPtr->texCoords = {1.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = points[0];
+	data.quadBufferPtr->position = {p1.x, p1.y, 0.f};
 	data.quadBufferPtr->color = {0.f, 0.f, 0.f, 0.f};
 	data.quadBufferPtr->texCoords = { 0.f, 1.f };
 	data.quadBufferPtr->texIndex = textureIndex;
@@ -379,7 +379,7 @@ void Renderer::drawTriangle(const std::array<glm::vec2, 3>& points, const glm::v
 	data.indexCount += 6;
 }
 
-void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID) {
+void Renderer2D::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID) {
 	if (data.indexCount >= maxIndices || data.textureSlotIndex > static_cast<GLuint>(maxTextures)) {
 		endBatch();
 		render();
@@ -403,25 +403,25 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32
 		data.textureSlotIndex++;
 	}
 
-	data.quadBufferPtr->position = { position.x, position.y };
+	data.quadBufferPtr->position = { position.x, position.y, 0.f };
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {0.f, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = { position.x + size.x, position.y };
+	data.quadBufferPtr->position = { position.x + size.x, position.y, 0.f };
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {1.f, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = { position.x + size.x, position.y + size.y };
+	data.quadBufferPtr->position = { position.x + size.x, position.y + size.y, 0.f };
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {1.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = { position.x, position.y + size.y };
+	data.quadBufferPtr->position = { position.x, position.y + size.y, 0.f };
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {0.f, 1.f}; 
 	data.quadBufferPtr->texIndex = textureIndex;
@@ -430,11 +430,11 @@ void Renderer::drawQuad(const glm::vec2& position, const glm::vec2& size, uint32
 	data.indexCount += 6;
 }
 
-void Renderer::clear() {
+void Renderer2D::clear() {
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void Renderer::drawGlyph(glm::vec2 position, const Character& ch, float scale, const glm::vec4& color) {
+void Renderer2D::drawGlyph(glm::vec2 position, const Character& ch, float scale, const glm::vec4& color) {
 	if (data.indexCount >= maxIndices || data.textureSlotIndex > static_cast<GLuint>(maxTextures)) {
 		endBatch();
 		render();
@@ -461,25 +461,25 @@ void Renderer::drawGlyph(glm::vec2 position, const Character& ch, float scale, c
 		data.textureSlotIndex++;
 	}
 
-	data.quadBufferPtr->position = {xPos, yPos};
+	data.quadBufferPtr->position = {xPos, yPos, 0.f};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {0.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = {xPos + width, yPos};
+	data.quadBufferPtr->position = {xPos + width, yPos, 0.f};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {1.f, 1.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = {xPos + width, yPos + height};
+	data.quadBufferPtr->position = {xPos + width, yPos + height, 0.f};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {1.f, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;
 	data.quadBufferPtr++;
 
-	data.quadBufferPtr->position = {xPos, yPos + height};
+	data.quadBufferPtr->position = {xPos, yPos + height, 0.f};
 	data.quadBufferPtr->color = color;
 	data.quadBufferPtr->texCoords = {0.f, 0.f};
 	data.quadBufferPtr->texIndex = textureIndex;

@@ -21,8 +21,6 @@ void AudioContext::init(const char* deviceName) {
 	if (!device)
 		throw std::runtime_error("Couldn't open the device");
 
-	// std::cout << "OpenAL Device: " << alcGetString(device, ALC_DEVICE_SPECIFIER) << std::endl;
-
 	context = alcCreateContext(device, nullptr);
 	if (!alcMakeContextCurrent(context))
 		throw std::runtime_error("Couldn't make the context current");

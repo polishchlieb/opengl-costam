@@ -13,7 +13,7 @@ void Entity::move(glm::vec2 difference) {
 
 void Entity::draw() {
 	if (textured)
-		Renderer::drawQuad(position, size, textureID);
+		Renderer2D::drawQuad(position, size, textureID);
 	else
-		Renderer::drawQuad(position, size, color);
+		Renderer2D::drawQuad(position, size, color);
 }

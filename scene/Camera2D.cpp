@@ -1,4 +1,4 @@
-#include "Camera.hpp"
+#include "Camera2D.hpp"
 
 Camera2D::Camera2D(glm::vec2 position)
 	: position(std::move(position)) {}

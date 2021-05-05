@@ -6,7 +6,7 @@ Texture::Texture(const std::string& path, GLint wrap)
     : width(0), height(0), bpp(0)
 {
     int width, height, bpp;
-    stbi_set_flip_vertically_on_load(1);
+    stbi_set_flip_vertically_on_load(true);
     unsigned char* buffer = stbi_load(path.c_str(), &width, &height, &bpp, 4);
 
     glCreateTextures(GL_TEXTURE_2D, 1, &id);
