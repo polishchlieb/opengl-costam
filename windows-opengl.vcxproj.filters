@@ -11,7 +11,6 @@
     <ClInclude Include="event\KeyPressedEvent.hpp" />
     <ClInclude Include="rendering\Glyph.hpp" />
     <ClInclude Include="rendering\Font.hpp" />
-    <ClInclude Include="rendering\Renderer.hpp" />
     <ClInclude Include="rendering\Vertex.hpp" />
     <ClInclude Include="rendering\Texture.hpp" />
     <ClInclude Include="scene\Entity.hpp" />
@@ -25,6 +24,7 @@
     <ClInclude Include="rendering\Window.hpp" />
     <ClInclude Include="scene\Camera2D.hpp" />
     <ClInclude Include="scene\Camera3D.hpp" />
+    <ClInclude Include="rendering\Renderer2D.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -32,7 +32,6 @@
     <ClCompile Include="shader\ShaderComponent.cpp" />
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="rendering\Font.cpp" />
-    <ClCompile Include="rendering\Renderer.cpp" />
     <ClCompile Include="rendering\Texture.cpp" />
     <ClCompile Include="scene\Entity.cpp" />
     <ClCompile Include="networking\Client.cpp" />
@@ -42,6 +41,6 @@
     <ClCompile Include="event\EventDispatcher.cpp" />
     <ClCompile Include="rendering\Window.cpp" />
     <ClCompile Include="scene\Camera2D.cpp" />
-    <ClCompile Include="scene\Camera3D.cpp" />
+    <ClCompile Include="rendering\Renderer2D.cpp" />
   </ItemGroup>
 </Project>

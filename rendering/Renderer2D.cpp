@@ -1,4 +1,4 @@
-#include "Renderer.hpp"
+#include "Renderer2D.hpp"
 
 #include <cstring>
 #include <glad/glad.h>
@@ -142,7 +142,7 @@ void Renderer2D::init() {
 			texture,
 			glm::vec2{face->glyph->bitmap.width, face->glyph->bitmap.rows},
 			glm::vec2{face->glyph->bitmap_left, face->glyph->bitmap_top},
-			face->glyph->advance.x
+			static_cast<unsigned int>(face->glyph->advance.x)
 		};
 		characters.insert({c, character});
 	}

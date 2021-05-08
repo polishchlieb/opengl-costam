@@ -1,5 +1,5 @@
 #include "Application.hpp"
-#include "rendering/Renderer.hpp"
+#include "rendering/Renderer2D.hpp"
 #include <array>
 
 #include <imgui/imgui.h>
