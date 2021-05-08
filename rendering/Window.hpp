@@ -16,6 +16,7 @@ public:
 	static bool shouldClose();
 
 	static const glm::vec2& getSize() { return size; }
+	static float getAspectRatio() { return size.x / size.y; }
 	static GLFWwindow* getWindow() { return window; }
 
 	static glm::vec2 getMousePosition();

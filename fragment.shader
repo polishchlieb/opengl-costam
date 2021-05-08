@@ -2,12 +2,13 @@
 
 layout(location = 0) out vec4 color;
 
-uniform vec3 objectColor;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 viewPos;
+uniform sampler2D textureID;
 
 in vec3 fragmentPos;
+in vec2 texCoord;
 in vec3 normal;
 
 void main() {
@@ -28,7 +29,11 @@ void main() {
     float spec = pow(max(dot(viewDirection, lightDirection), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
+    // color from texture
+    vec4 sampled = texture(textureID, texCoord);
+
     // phong
-    vec3 result = (ambient + diffuse + specular) * objectColor;
-    color = vec4(result, 1.0);
+    vec4 phong = vec4(ambient + diffuse + specular, 1.0);
+
+    color = phong * sampled;
 }

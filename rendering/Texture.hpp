@@ -16,7 +16,7 @@ public:
     inline int getWidth() const { return width; }
     int getHeight() const { return height; }
     unsigned int getId() const { return id; }
-private:
+protected:
     unsigned int id;
     int width, height, bpp;
 };

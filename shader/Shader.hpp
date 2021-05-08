@@ -19,6 +19,7 @@ public:
     void createSamplers();
 
     void setUniform1i(const std::string& name, int value);
+    void setUniformSampler2D(const std::string& name, int value);
     template<size_t size>
     void setUniform1iv(const std::string& name, std::array<int, size>& array) {
         glUniform1iv(

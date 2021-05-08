@@ -26,6 +26,11 @@ void Window::create(const std::string& title, size_t width, size_t height) {
 	gladLoadGL();
 
 	size = {width, height};
+
+	glfwSetFramebufferSizeCallback(Window::getWindow(), [](GLFWwindow* window, int width, int height) {
+		glViewport(0, 0, width, height);
+		size = {width, height};
+	});
 }
 
 void Window::setTitle(const std::string& title) {

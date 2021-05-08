@@ -25,6 +25,8 @@
     <ClInclude Include="scene\Camera2D.hpp" />
     <ClInclude Include="scene\Camera3D.hpp" />
     <ClInclude Include="rendering\Renderer2D.hpp" />
+    <ClInclude Include="rendering\ModelLoader.hpp" />
+    <ClInclude Include="rendering\ColorTexture.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -42,5 +44,7 @@
     <ClCompile Include="rendering\Window.cpp" />
     <ClCompile Include="scene\Camera2D.cpp" />
     <ClCompile Include="rendering\Renderer2D.cpp" />
+    <ClCompile Include="rendering\ModelLoader.cpp" />
+    <ClCompile Include="rendering\ColorTexture.cpp" />
   </ItemGroup>
 </Project>

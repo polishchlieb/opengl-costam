@@ -158,6 +158,8 @@
     <ClInclude Include="event\EventListener.hpp" />
     <ClInclude Include="networking\Client.hpp" />
     <ClInclude Include="networking\Message.hpp" />
+    <ClInclude Include="rendering\ColorTexture.hpp" />
+    <ClInclude Include="rendering\ModelLoader.hpp" />
     <ClInclude Include="rendering\Window.hpp" />
     <ClInclude Include="scene\Camera2D.hpp" />
     <ClInclude Include="scene\Camera3D.hpp" />
@@ -181,6 +183,8 @@
     <ClCompile Include="audio\AudioSource.cpp" />
     <ClCompile Include="event\EventDispatcher.cpp" />
     <ClCompile Include="networking\Client.cpp" />
+    <ClCompile Include="rendering\ColorTexture.cpp" />
+    <ClCompile Include="rendering\ModelLoader.cpp" />
     <ClCompile Include="rendering\stb_image.cpp" />
     <ClCompile Include="rendering\Window.cpp" />
     <ClCompile Include="scene\Camera2D.cpp" />

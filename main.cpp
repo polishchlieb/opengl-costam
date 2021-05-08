@@ -6,14 +6,16 @@
 #include "rendering/Window.hpp"
 #include "scene/Camera3D.hpp"
 
+#include <sstream>
+#include "rendering/ModelLoader.hpp"
+
+#include "rendering/ColorTexture.hpp"
+
 int main() {
 	Window::init();
 	Window::create("hell world", 960, 540);
 
     glfwSetInputMode(Window::getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetFramebufferSizeCallback(Window::getWindow(), [](GLFWwindow* window, int width, int height) {
-        glViewport(0, 0, width, height);
-    });
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
@@ -43,77 +45,83 @@ int main() {
     lightShader.link();
     lightShader.validate();
 
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+    ColorTexture whiteTexture{{1.f, 1.f, 1.f, 1.f}};
+    whiteTexture.bind(1);
+    Texture chungusTexture{ "res/meshes/chungus-1/chungus_TM_u0_v0.png" };
+    chungusTexture.bind(2);
 
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+    auto chungusVertices = loadObj("res/meshes/chungus-1/chungus.obj");
+    /* float vertices[] = {
+        -0.5f, -0.5f, -0.5f, 0.f, 0.f, 0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f, 0.f, 0.f, 0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f, 0.f, 0.f, 0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f, 0.f, 0.f, 0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f, 0.f, 0.f, 0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f, 0.f, 0.f, 0.0f,  0.0f, -1.0f,
 
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, 0.f, 0.f, 0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f, 0.f, 0.f, 0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 0.f, 0.f, 0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f, 0.f, 0.f, 0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f, 0.f, 0.f, 0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f, 0.f, 0.f, 0.0f,  0.0f, 1.0f,
 
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, 0.f, 0.f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, 0.f, 0.f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, 0.f, 0.f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, 0.f, 0.f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, 0.f, 0.f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, 0.f, 0.f, -1.0f,  0.0f,  0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.f, 0.f, 1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.f, 0.f, 1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.f, 0.f, 1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.f, 0.f, 1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.f, 0.f, 1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.f, 0.f, 1.0f,  0.0f,  0.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-    };
+        -0.5f, -0.5f, -0.5f,  0.f, 0.f, 0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.f, 0.f, 0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.f, 0.f, 0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.f, 0.f, 0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.f, 0.f, 0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.f, 0.f, 0.0f, -1.0f,  0.0f,
 
-    unsigned int vbo, cubeVAO;
-    glGenVertexArrays(1, &cubeVAO);
-    glGenBuffers(1, &vbo);
+        -0.5f,  0.5f, -0.5f,  0.f, 0.f, 0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.f, 0.f, 0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.f, 0.f, 0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.f, 0.f, 0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.f, 0.f, 0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.f, 0.f, 0.0f,  1.0f,  0.0f
+    }; */
+    auto vertices = loadObj("res/meshes/cube/cube.obj");
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(cubeVAO);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    unsigned int chungusVBO, chungusVAO;
+    glGenVertexArrays(1, &chungusVAO);
+    glGenBuffers(1, &chungusVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, chungusVBO);
+    glBufferData(GL_ARRAY_BUFFER, chungusVertices.size() * sizeof(Vertex), chungusVertices.data(), GL_STATIC_DRAW);
+    glBindVertexArray(chungusVAO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, texCoord));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
+    glEnableVertexAttribArray(2);
 
-    unsigned int lightCubeVAO;
+    unsigned int lightCubeVBO, lightCubeVAO;
     glGenVertexArrays(1, &lightCubeVAO);
+    glGenBuffers(1, &lightCubeVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, lightCubeVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
     glBindVertexArray(lightCubeVAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
     glEnableVertexAttribArray(0);
 
-    static Camera3D camera{{0.f, 0.f, 3.f}};
+    static Camera3D camera{{0.f, 60.f, 70.f}};
     camera.lookAt({0.f, 0.f, 0.f});
 
-    static float lastX = 960.f / 2, lastY = 540.f / 2;
+    static float lastX = Window::getSize().x / 2, lastY = Window::getSize().y / 2;
     static float yaw = -90.f, pitch = 0.f;
     glfwSetCursorPosCallback(Window::getWindow(), [](GLFWwindow*, double xpos, double ypos) {
         auto xoffset = static_cast<float>(xpos) - lastX;
@@ -142,19 +150,21 @@ int main() {
             fov = 90.f;
     });
 
-    glm::vec3 lightPos{2137.f, 0.f, 0.f};
+    glm::vec3 lightPos{0.f, 120.f, 100.f};
 
     float deltaTime = 0.f;
     float lastFrame = 0.f;
 	while (!Window::shouldClose()) {
+        // calculate deltaTime
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        // handle input
         if (Window::isKeyPressed(GLFW_KEY_ESCAPE))
             glfwSetWindowShouldClose(Window::getWindow(), true);
         
-        float cameraSpeed = 2.5f * deltaTime;
+        float cameraSpeed = 10.f * deltaTime;
         if (Window::isKeyPressed(GLFW_KEY_W))
             camera.move(cameraSpeed * camera.getFront());
         if (Window::isKeyPressed(GLFW_KEY_S))
@@ -164,45 +174,46 @@ int main() {
         if (Window::isKeyPressed(GLFW_KEY_D))
             camera.move(glm::normalize(glm::cross(camera.getFront(), camera.getUp())) * cameraSpeed);
 
+        // update light position
+        /* lightPos.x = cos(glfwGetTime()) * 2.f;
+        lightPos.z = sin(glfwGetTime()) * 2.f;
+        lightPos.y = pow(cos(glfwGetTime()), 2) * 2.f; */
+
+        // calculate matrices
+        auto projection = glm::perspective(glm::radians(fov), Window::getAspectRatio(), .1f, 100.f);
+        auto view = camera.calculateViewMatrix();
+
+        // render
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        lightPos.x = cos(glfwGetTime()) * 2.f;
-        lightPos.z = sin(glfwGetTime()) * 2.f;
-        lightPos.y = pow(cos(glfwGetTime()), 2) * 2.f;
-
+        // draw chungus
+        auto chungusModel = glm::mat4(1.f);
         shader.bind();
-        shader.setUniformVec3("objectColor", {1.f, .5f, .31f});
         shader.setUniformVec3("lightColor", {1.f, 1.f, 1.f});
         shader.setUniformVec3("lightPos", lightPos);
         shader.setUniformVec3("viewPos", camera.getPosition());
+        shader.setUniformSampler2D("textureID", 2);
+        shader.setUniformMat4f("model", chungusModel);
+        shader.setUniformMat4f("u_MVP", projection * view * chungusModel);
+        glBindVertexArray(chungusVAO);
+        glDrawArrays(GL_TRIANGLES, 0, chungusVertices.size());
 
-        auto model = glm::mat4(1.f);
-        glm::mat4 projection = glm::perspective(glm::radians(fov), 960.f / 540.f, .1f, 100.f);
-
-        auto view = camera.calculateViewMatrix();
-
-        shader.setUniformMat4f("model", model);
-        shader.setUniformMat4f("u_MVP", projection * view * model);
-
-        glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
+        // draw light
+        auto lightModel = glm::translate(glm::mat4(1.f), lightPos);
+        lightModel = glm::scale(lightModel, glm::vec3(.2f));
         lightShader.bind();
-
-        model = glm::translate(glm::mat4(1.f), lightPos);
-        model = glm::scale(model, glm::vec3(.2f));
-        lightShader.setUniformMat4f("u_MVP", projection * view * model);
-
+        lightShader.setUniformMat4f("u_MVP", projection * view * lightModel);
         glBindVertexArray(lightCubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 
         Window::swapBuffers();
         glfwPollEvents();
 	}
 
-    glDeleteVertexArrays(1, &cubeVAO);
+    glDeleteBuffers(1, &chungusVBO);
+    glDeleteBuffers(1, &lightCubeVBO);
+    glDeleteVertexArrays(1, &chungusVAO);
     glDeleteVertexArrays(1, &lightCubeVAO);
-    glDeleteBuffers(1, &vbo);
 
     glfwTerminate();
 
