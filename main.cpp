@@ -11,17 +11,17 @@
 
 #include "rendering/ColorTexture.hpp"
 #include "rendering/Mesh.hpp"
+#include "rendering/GL.hpp"
 
 int main() {
     Window::init();
     Window::create("hell world", 960, 540);
 
-    glfwSetInputMode(Window::getWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    Window::setCursorMode(Window::CursorMode::Disabled);
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+    GL::enableDepthTesting();
+    GL::enableBlending();
+    
     Shader shader;
     shader.attach(ShaderComponent::fromFile(
         ShaderComponent::ShaderType::VertexShader,
@@ -47,9 +47,7 @@ int main() {
     lightShader.validate();
 
     ColorTexture whiteTexture{{1.f, 1.f, 1.f, 1.f}};
-    whiteTexture.bind(1);
     Texture chungusTexture{"res/meshes/chungus-1/chungus_TM_u0_v0.png"};
-    chungusTexture.bind(2);
 
     Mesh chungus{"res/meshes/chungus-1/chungus.obj"};
     Mesh lightCube{"res/meshes/cube/cube.obj"};
@@ -59,15 +57,10 @@ int main() {
 
     static float lastX = Window::getSize().x / 2, lastY = Window::getSize().y / 2;
     static float yaw = -90.f, pitch = 0.f;
-    glfwSetCursorPosCallback(Window::getWindow(), [](GLFWwindow*, double xpos, double ypos) {
-        auto xoffset = static_cast<float>(xpos) - lastX;
-        auto yoffset = lastY - static_cast<float>(ypos);
-        lastX = static_cast<float>(xpos);
-        lastY = static_cast<float>(ypos);
-        
+    Window::onCursorMove([](glm::vec2, glm::vec2 offset) {
         constexpr float sensitivity = 0.08f;
-        yaw += xoffset * sensitivity;
-        pitch += yoffset * sensitivity;
+        yaw += offset.x * sensitivity;
+        pitch += offset.y * sensitivity;
 
         if (pitch > 89.f)
             pitch = 89.f;
@@ -78,8 +71,8 @@ int main() {
     });
 
     static float fov = 45.f;
-    glfwSetScrollCallback(Window::getWindow(), [](GLFWwindow* window, double xoffset, double yoffset) {
-        fov -= static_cast<float>(yoffset);
+    Window::onScroll([](float offset) {
+        fov -= static_cast<float>(offset);
         if (fov < 1.f)
             fov = 1.f;
         if (fov > 90.f)
@@ -92,13 +85,13 @@ int main() {
     float lastFrame = 0.f;
     while (!Window::shouldClose()) {
         // calculate deltaTime
-        float currentFrame = glfwGetTime();
+        float currentFrame = Window::getTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
         // handle input
         if (Window::isKeyPressed(Window::Key::Esc))
-            glfwSetWindowShouldClose(Window::getWindow(), true);
+            Window::close();
         
         float cameraSpeed = 10.f * deltaTime;
         if (Window::isKeyPressed(Window::Key::W))
@@ -110,10 +103,8 @@ int main() {
         if (Window::isKeyPressed(Window::Key::D))
             camera.move(glm::normalize(glm::cross(camera.getFront(), camera.getUp())) * cameraSpeed);
 
-        
-
         // update light position
-        lightPos.y = cos(glfwGetTime()) * 50.f + 70.f;
+        lightPos.y = cos(Window::getTime()) * 50.f + 70.f;
 
         // calculate matrices
         auto projection = glm::perspective(glm::radians(fov), Window::getAspectRatio(), .1f, 100.f);
@@ -130,7 +121,8 @@ int main() {
         shader.setUniformVec3("lightColor", {1.f, 1.f, 1.f});
         shader.setUniformVec3("lightPos", lightPos);
         shader.setUniformVec3("viewPos", camera.getPosition());
-        shader.setUniformSampler2D("textureID", 2);
+        chungusTexture.bind(0);
+        shader.setUniformSampler2D("textureID", 0);
         shader.setUniformMat4f("model", chungusModel);
         shader.setUniformMat4f("u_MVP", projection * view * chungusModel);
         chungus.draw();

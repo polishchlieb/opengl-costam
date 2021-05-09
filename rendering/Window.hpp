@@ -33,20 +33,25 @@ public:
 	static void pollEvents();
 	static bool shouldClose();
 	static void terminate();
+	static void close();
 
-	static const glm::vec2& getSize() { return size; }
-	static float getAspectRatio() { return size.x / size.y; }
-	static GLFWwindow* getWindow() { return window; }
+	static const glm::vec2& getSize();
+	static float getAspectRatio();
+	static GLFWwindow* getWindow();
 
 	static glm::vec2 getMousePosition();
 	static bool getMouseButton(int button);
+	static double getTime();
 
-	void onCursorMove(std::function<void(float, float)> callback);
-	void onScroll(std::function<void(float, float)> callback);
-private:
-	static GLFWwindow* window;
-	static glm::vec2 size;
-	static std::unordered_map<int, bool> previousMouseState;
+	static enum class CursorMode {
+		Disabled = GLFW_CURSOR_DISABLED,
+		Normal = GLFW_CURSOR_NORMAL,
+		Hidden = GLFW_CURSOR_HIDDEN
+	};
+	static void setCursorMode(CursorMode value);
+
+	static void onCursorMove(std::function<void(glm::vec2 currentPosition, glm::vec2 offset)> callback);
+	static void onScroll(std::function<void(float offset)> callback);
 };
 
 static inline Window::BufferType operator|(Window::BufferType a, Window::BufferType b) {

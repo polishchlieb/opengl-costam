@@ -159,6 +159,8 @@
     <ClInclude Include="networking\Client.hpp" />
     <ClInclude Include="networking\Message.hpp" />
     <ClInclude Include="rendering\ColorTexture.hpp" />
+    <ClInclude Include="rendering\GL.hpp" />
+    <ClInclude Include="rendering\Image.hpp" />
     <ClInclude Include="rendering\Mesh.hpp" />
     <ClInclude Include="rendering\ModelLoader.hpp" />
     <ClInclude Include="rendering\Window.hpp" />
@@ -185,6 +187,7 @@
     <ClCompile Include="event\EventDispatcher.cpp" />
     <ClCompile Include="networking\Client.cpp" />
     <ClCompile Include="rendering\ColorTexture.cpp" />
+    <ClCompile Include="rendering\Image.cpp" />
     <ClCompile Include="rendering\Mesh.cpp" />
     <ClCompile Include="rendering\ModelLoader.cpp" />
     <ClCompile Include="rendering\stb_image.cpp" />

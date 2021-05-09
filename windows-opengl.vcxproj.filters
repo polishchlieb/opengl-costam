@@ -28,6 +28,8 @@
     <ClInclude Include="rendering\ModelLoader.hpp" />
     <ClInclude Include="rendering\ColorTexture.hpp" />
     <ClInclude Include="rendering\Mesh.hpp" />
+    <ClInclude Include="rendering\Image.hpp" />
+    <ClInclude Include="rendering\GL.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -49,5 +51,6 @@
     <ClCompile Include="rendering\ColorTexture.cpp" />
     <ClCompile Include="rendering\Mesh.cpp" />
     <ClCompile Include="scene\Camera3D.cpp" />
+    <ClCompile Include="rendering\Image.cpp" />
   </ItemGroup>
 </Project>
