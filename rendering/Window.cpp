@@ -37,16 +37,28 @@ void Window::setTitle(const std::string& title) {
 	glfwSetWindowTitle(window, title.c_str());
 }
 
-bool Window::isKeyPressed(int code) {
-	return glfwGetKey(window, code) == GLFW_PRESS;
+void Window::clearBuffers(BufferType type) {
+	glClear(static_cast<GLbitfield>(type));
+}
+
+bool Window::isKeyPressed(Key key) {
+	return glfwGetKey(window, static_cast<int>(key)) == GLFW_PRESS;
 }
 
 void Window::swapBuffers() {
 	glfwSwapBuffers(window);
 }
 
+void Window::pollEvents() {
+	glfwPollEvents();
+}
+
 bool Window::shouldClose() {
 	return glfwWindowShouldClose(window);
+}
+
+void Window::terminate() {
+	glfwTerminate();
 }
 
 glm::vec2 Window::getMousePosition() {

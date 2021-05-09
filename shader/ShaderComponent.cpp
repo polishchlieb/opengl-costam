@@ -2,8 +2,8 @@
 #include <glad/glad.h>
 #include <fstream>
 
-ShaderComponent::ShaderComponent(unsigned int type)
-    : id(glCreateShader(type)) {}
+ShaderComponent::ShaderComponent(ShaderType type)
+    : id(glCreateShader(static_cast<GLenum>(type))) {}
 
 ShaderComponent::~ShaderComponent() {
     glDeleteShader(id);
@@ -28,14 +28,14 @@ void ShaderComponent::compile() {
     }
 }
 
-ShaderComponent ShaderComponent::fromString(unsigned int type, const std::string &source) {
+ShaderComponent ShaderComponent::fromString(ShaderType type, const std::string &source) {
     ShaderComponent component{type};
     component.load(source);
     component.compile();
     return component;
 }
 
-ShaderComponent ShaderComponent::fromFile(unsigned int type, const std::string &fileName) {
+ShaderComponent ShaderComponent::fromFile(ShaderType type, const std::string &fileName) {
     std::ifstream file{fileName};
     if (!file.is_open())
         throw std::runtime_error("Couldn't load the file");

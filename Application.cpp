@@ -104,14 +104,14 @@ void Application::initRendering() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	shader.attach(ShaderComponent::fromFile(
+	/* shader.attach(ShaderComponent::fromFile(
 		GL_VERTEX_SHADER,
 		"vertex.shader"
 	));
 	shader.attach(ShaderComponent::fromFile(
 		GL_FRAGMENT_SHADER,
 		"fragment.shader"
-	));
+	)); */
 
 	shader.link();
 	shader.validate();
