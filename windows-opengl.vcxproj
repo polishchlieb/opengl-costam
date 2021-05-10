@@ -175,6 +175,7 @@
     <ClInclude Include="rendering\Font.hpp" />
     <ClInclude Include="rendering\Glyph.hpp" />
     <ClInclude Include="rendering\Renderer2D.hpp" />
+    <ClInclude Include="scene\Light3D.hpp" />
     <ClInclude Include="shader\Shader.hpp" />
     <ClInclude Include="shader\ShaderComponent.hpp" />
     <ClInclude Include="rendering\Texture.hpp" />
@@ -199,6 +200,7 @@
     <ClCompile Include="rendering\Font.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="rendering\Renderer2D.cpp" />
+    <ClCompile Include="scene\Light3D.cpp" />
     <ClCompile Include="shader\Shader.cpp" />
     <ClCompile Include="shader\ShaderComponent.cpp" />
     <ClCompile Include="rendering\Texture.cpp" />

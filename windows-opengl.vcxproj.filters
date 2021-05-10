@@ -30,6 +30,7 @@
     <ClInclude Include="rendering\Mesh.hpp" />
     <ClInclude Include="rendering\Image.hpp" />
     <ClInclude Include="rendering\GL.hpp" />
+    <ClInclude Include="scene\Light3D.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -52,5 +53,6 @@
     <ClCompile Include="rendering\Mesh.cpp" />
     <ClCompile Include="scene\Camera3D.cpp" />
     <ClCompile Include="rendering\Image.cpp" />
+    <ClCompile Include="scene\Light3D.cpp" />
   </ItemGroup>
 </Project>

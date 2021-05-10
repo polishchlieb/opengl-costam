@@ -28,7 +28,7 @@ void Shader::createSamplers() {
     std::array<int, 32> samplers;
     for (uint16_t i = 0; i < 32; ++i)
         samplers[i] = i;
-    setUniform1iv("u_Textures", samplers);
+    setUniform1iv("textures", samplers);
 }
 
 void Shader::bind() const {
@@ -59,7 +59,7 @@ void Shader::setUniformVec3(const std::string& name, const glm::vec3& value) {
     glUniform3fv(getUniformLocation(name), 1, glm::value_ptr(value));
 }
 
-GLint Shader::getUniformLocation(const std::string& name) const {
+int Shader::getUniformLocation(const std::string& name) const {
     if (uniformLocationCache.contains(name))
         return uniformLocationCache[name];
 

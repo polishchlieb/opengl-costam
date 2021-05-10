@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 std::vector<Vertex> loadObj(const std::string& filePath) {
     std::vector<glm::vec3> vertexPositions;
@@ -35,6 +36,18 @@ std::vector<Vertex> loadObj(const std::string& filePath) {
             ss >> normal.x >> normal.y >> normal.z;
             vertexNormals.push_back(normal);
         } else if (prefix == "f") {
+            for (uint8_t i = 0; i < 3; ++i) {
+                uint32_t positionIndex, texCoordIndex, normalIndex;
+                ss >> positionIndex; ss.ignore();
+                ss >> texCoordIndex; ss.ignore();
+                ss >> normalIndex;
+
+                vertices.emplace_back(
+                    vertexPositions[positionIndex - 1],
+                    vertexTexcoords[texCoordIndex - 1],
+                    vertexNormals[normalIndex - 1]
+                );
+            }
             break;
         }
     }
@@ -46,6 +59,9 @@ std::vector<Vertex> loadObj(const std::string& filePath) {
 
         std::string prefix;
         ss >> prefix;
+
+        if (prefix != "f")
+            continue;
 
         for (uint8_t i = 0; i < 3; ++i) {
             uint32_t positionIndex, texCoordIndex, normalIndex;

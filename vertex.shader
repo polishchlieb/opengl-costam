@@ -15,7 +15,5 @@ void main() {
     gl_Position = u_MVP * vec4(position, 1.0);
     texCoord = vTexCoord;
     fragmentPos = vec3(model * vec4(position, 1.0));
-    
-    // TODO: change normal to uniform and calculate this on the CPU side
     normal = mat3(transpose(inverse(model))) * vNormal;
 }

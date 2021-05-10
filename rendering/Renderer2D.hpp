@@ -30,7 +30,8 @@ public:
 	static void drawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID);
 	static void drawScrollingQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID, float scrollX);
 	static void drawGlyph(const glm::vec2& position, const glm::vec2& size, const Glyph& glyph);
-	static void drawText(glm::vec2 position, const std::string& value, float scale, const glm::vec4& color);
+	static float drawText(glm::vec2 position, const std::string& value, float scale, const glm::vec4& color);
+	static float measureText(const std::string& value, float scale = 1.f);
 	static void drawTriangle(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& p3, const glm::vec4& color);
 
 	static void clear();

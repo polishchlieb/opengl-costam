@@ -16,11 +16,91 @@
 
 #include "rendering/Window.hpp"
 
+
+#include "rendering/ColorTexture.hpp"
+#include "rendering/Mesh.hpp"
+#include "rendering/GL.hpp"
+
+Application::~Application() {
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
+	Renderer2D::shutdown();
+
+	glfwTerminate();
+}
+
 void Application::init() {
-	initOpenGL();
-	initRendering();
-	initImGui();
-	initAudio();
+	Window::init();
+	Window::create("hell world", 960, 540);
+
+	Window::setCursorMode(Window::CursorMode::Disabled);
+
+	GL::enableDepthTesting();
+	GL::enableBlending();
+
+	Shader shader;
+	shader.attach(ShaderComponent::fromFile(
+		ShaderComponent::ShaderType::VertexShader,
+		"vertex.shader"
+	));
+	shader.attach(ShaderComponent::fromFile(
+		ShaderComponent::ShaderType::FragmentShader,
+		"fragment.shader"
+	));
+	shader.link();
+	shader.validate();
+
+	Shader lightShader;
+	lightShader.attach(ShaderComponent::fromFile(
+		ShaderComponent::ShaderType::VertexShader,
+		"light.vertex.shader"
+	));
+	lightShader.attach(ShaderComponent::fromFile(
+		ShaderComponent::ShaderType::FragmentShader,
+		"light.fragment.shader"
+	));
+	lightShader.link();
+	lightShader.validate();
+
+	Shader shader2D;
+	shader2D.attach(ShaderComponent::fromFile(
+		ShaderComponent::ShaderType::VertexShader,
+		"2d.vertex.shader"
+	));
+	shader2D.attach(ShaderComponent::fromFile(
+		ShaderComponent::ShaderType::FragmentShader,
+		"2d.fragment.shader"
+	));
+	shader2D.link();
+	shader2D.validate();
+
+	Renderer2D::init();
+
+	ColorTexture whiteTexture{ {1.f, 1.f, 1.f, 1.f} };
+	Texture chungusTexture{ "res/meshes/chungus-1/chungus_TM_u0_v0.png" };
+
+	Mesh chungus{ "res/meshes/chungus-1/chungus.obj" };
+	Mesh lightCube{ "res/meshes/cube/cube.obj" };
+	Mesh peter{ "res/meshes/piotr-g-1/peter.obj" };
+
+	AudioListener::setPosition({ 0.f, 0.f, 0.f });
+	AudioListener::setVelocity({ 0.f, 0.f, 0.f });
+	AudioListener::setOrientation({
+		1.f, 0.f, 0.f,
+		0.f, 1.f, 0.f
+	});
+
+	ImGui::CreateContext();
+
+	ImGui::StyleColorsDark();
+
+	ImGui_ImplGlfw_InitForOpenGL(Window::getWindow(), true);
+	ImGui_ImplOpenGL3_Init("#version 130");
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 }
 
 void Application::loop() {
@@ -38,22 +118,7 @@ void Application::loop() {
 	lastFrame = currentFrame;
 }
 
-void Application::shutdown() {
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-
-	Renderer2D::shutdown();
-
-	glfwTerminate();
-}
-
 void Application::draw() {
-	mvp = proj * view * model;
-	shader.bind();
-	shader.setUniformMat4f("u_MVP", mvp);
-	
-	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
 
 void Application::drawGUI() {
@@ -83,109 +148,4 @@ void Application::drawGUI() {
 
 void Application::processEvents() {
 	glfwPollEvents();
-}
-
-void Application::initAudio() {
-	AudioListener::setPosition({0.f, 0.f, 0.f});
-	AudioListener::setVelocity({0.f, 0.f, 0.f});
-	AudioListener::setOrientation({
-		1.f, 0.f, 0.f,
-		0.f, 1.f, 0.f
-	});
-}
-
-void Application::initOpenGL() {
-	glDebugMessageCallback(dumpOpenGLMessage, nullptr);
-	glEnable(GL_DEBUG_OUTPUT);
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-}
-
-void Application::initRendering() {
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	/* shader.attach(ShaderComponent::fromFile(
-		GL_VERTEX_SHADER,
-		"vertex.shader"
-	));
-	shader.attach(ShaderComponent::fromFile(
-		GL_FRAGMENT_SHADER,
-		"fragment.shader"
-	)); */
-
-	shader.link();
-	shader.validate();
-	shader.bind();
-	shader.createSamplers();
-
-	vertices = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
-
-	unsigned int vbo, vao;
-	glGenVertexArrays(1, &vao);
-	glGenBuffers(1, &vbo);
-
-	glBindVertexArray(vao);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-}
-
-void Application::initImGui() {
-	ImGui::CreateContext();
-
-	ImGui::StyleColorsDark();
-
-	ImGui_ImplGlfw_InitForOpenGL(Window::getWindow(), true);
-	ImGui_ImplOpenGL3_Init("#version 130");
-
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 }

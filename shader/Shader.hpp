@@ -33,10 +33,8 @@ public:
     void setUniformVec3(const std::string& name, const glm::vec3& value);
 private:
     unsigned int program;
-    bool bound = false;
-
-    mutable std::unordered_map<std::string, GLint> uniformLocationCache;
-    GLint getUniformLocation(const std::string& name) const;
+    mutable std::unordered_map<std::string, int> uniformLocationCache;
+    int getUniformLocation(const std::string& name) const;
 };
 
 #endif //UNTITLED_SHADER_HPP

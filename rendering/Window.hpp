@@ -41,7 +41,7 @@ public:
 
 	static glm::vec2 getMousePosition();
 	static bool getMouseButton(int button);
-	static double getTime();
+	static float getTime();
 
 	static enum class CursorMode {
 		Disabled = GLFW_CURSOR_DISABLED,

@@ -1,5 +1,6 @@
 #include "Window.hpp"
 #include <stdexcept>
+#include <iostream>
 
 struct WindowState {
 	GLFWwindow* window;
@@ -21,6 +22,28 @@ void Window::init() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 }
 
+#ifndef RELEASE
+static void dumpOpenGLMessage(
+	unsigned int source, unsigned int type, unsigned int id,
+	unsigned int severity, int length, const char* message,
+	const void* userParam
+) {
+	switch (severity) {
+	case GL_DEBUG_SEVERITY_HIGH:
+		std::cout << "[high severity] " << message << std::endl;
+		break;
+	case GL_DEBUG_SEVERITY_MEDIUM:
+		std::cout << "[medium severity] " << message << std::endl;
+		break;
+	case GL_DEBUG_SEVERITY_LOW:
+		std::cout << "[low severity] " << message << std::endl;
+		break;
+	default:
+		break;
+	}
+}
+#endif
+
 void Window::create(const std::string& title, size_t width, size_t height) {
 	windowState.window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 	if (!windowState.window) {
@@ -34,11 +57,19 @@ void Window::create(const std::string& title, size_t width, size_t height) {
 	gladLoadGL();
 
 	windowState.size = {width, height};
+	windowState.lastMouseX = width / 2.f;
+	windowState.lastMouseY = height / 2.f;
 
 	glfwSetFramebufferSizeCallback(Window::getWindow(), [](GLFWwindow* window, int width, int height) {
 		glViewport(0, 0, width, height);
 		windowState.size = {width, height};
 	});
+
+#ifndef RELEASE
+	glDebugMessageCallback(dumpOpenGLMessage, nullptr);
+	glEnable(GL_DEBUG_OUTPUT);
+	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+#endif
 }
 
 void Window::setTitle(const std::string& title) {
@@ -101,8 +132,8 @@ bool Window::getMouseButton(int button) {
 	return result;
 }
 
-double Window::getTime() {
-	return glfwGetTime();
+float Window::getTime() {
+	return static_cast<float>(glfwGetTime());
 }
 
 void Window::setCursorMode(CursorMode value) {
