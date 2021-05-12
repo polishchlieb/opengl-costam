@@ -173,7 +173,6 @@
     <ClInclude Include="event\KeyPressedEvent.hpp" />
     <ClInclude Include="event\MouseMoveEvent.hpp" />
     <ClInclude Include="rendering\Font.hpp" />
-    <ClInclude Include="rendering\Glyph.hpp" />
     <ClInclude Include="rendering\Renderer2D.hpp" />
     <ClInclude Include="scene\Light3D.hpp" />
     <ClInclude Include="shader\Shader.hpp" />

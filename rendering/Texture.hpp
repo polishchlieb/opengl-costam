@@ -6,11 +6,13 @@
 #include <glad/glad.h>
 
 #include "Image.hpp"
+#include <glm/ext/vector_uint2.hpp>
 
 class Texture {
 public:
-    explicit Texture(const std::string& path, GLint wrap = GL_CLAMP_TO_EDGE);
-    explicit Texture(const Image& image, GLint wrap = GL_CLAMP_TO_EDGE);
+    Texture(const std::string& path, GLint wrap = GL_CLAMP_TO_EDGE);
+    Texture(const Image& image, GLint wrap = GL_CLAMP_TO_EDGE);
+    Texture(const unsigned char* buffer, glm::uvec2 size, GLint wrap = GL_CLAMP_TO_EDGE);
     Texture();
     ~Texture();
 
@@ -22,6 +24,8 @@ public:
 protected:
     unsigned int id;
     int width, height;
+
+    void init(const unsigned char* buffer, glm::uvec2 size, GLint wrap = GL_CLAMP_TO_EDGE);
 };
 
 #endif //UNTITLED_TEXTURE_HPP

@@ -1,14 +1,22 @@
 #pragma once
-#include "Glyph.hpp"
 #include <vector>
+#include <string>
+#include <unordered_map>
+#include "Texture.hpp"
+#include <glm/glm.hpp>
+
+struct Character {
+	std::unique_ptr<Texture> texture;
+	glm::ivec2 bearing;
+	unsigned int advance;
+};
 
 class Font {
 public:
-	Font(GLuint textureID, std::vector<uint16_t> glyphWidths, uint16_t spriteWidth, uint16_t spriteHeight, uint16_t glyphWidth, uint16_t glyphHeight);
-	Glyph getGlyph(uint16_t index, glm::vec4 color);
-	uint16_t getGlyphWidth(uint16_t index);
+	Font(const std::string& filePath, size_t size);
+
+	const Character& getChar(char c) const { return characters.find(c)->second; }
+	float measureText(const std::string& text, float scale = 1.f) const;
 private:
-	GLuint textureID;
-	std::vector<uint16_t> glyphWidths;
-	uint16_t spriteWidth, spriteHeight, glyphWidth, glyphHeight;
+	std::unordered_map<char, Character> characters;
 };

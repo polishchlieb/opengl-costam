@@ -9,7 +9,6 @@
     <ClInclude Include="Application.hpp" />
     <ClInclude Include="event\MouseMoveEvent.hpp" />
     <ClInclude Include="event\KeyPressedEvent.hpp" />
-    <ClInclude Include="rendering\Glyph.hpp" />
     <ClInclude Include="rendering\Font.hpp" />
     <ClInclude Include="rendering\Vertex.hpp" />
     <ClInclude Include="rendering\Texture.hpp" />

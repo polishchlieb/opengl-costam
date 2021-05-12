@@ -22,7 +22,6 @@ int main() {
 
     Window::setCursorMode(Window::CursorMode::Disabled);
 
-    //GL::enableDepthTesting();
     GL::enableBlending();
     
     Shader shader;
@@ -69,6 +68,8 @@ int main() {
     Mesh chungus{"res/meshes/chungus-1/chungus.obj"};
     Mesh lightCube{"res/meshes/cube/cube.obj"};
     Mesh peter{"res/meshes/piotr-g-1/peter.obj"};
+
+    Font comicSans{"res/fonts/comic.ttf", 48};
 
     static Camera3D camera{{0.f, 5.f, 20.f}};
     camera.lookAt({0.f, 0.f, 0.f});
@@ -139,7 +140,7 @@ int main() {
         );
 
         { // render 3d shit
-            glEnable(GL_DEPTH_TEST);
+            GL::enableDepthTesting();
 
             // draw chungus
             shader.bind();
@@ -152,11 +153,6 @@ int main() {
             shader.setUniformMat4f("u_MVP", projection * view * chungusModel);
             chungus.draw();
 
-            // draw peter g
-            whiteTexture.bind(0);
-            shader.setUniformMat4f("u_MVP", projection * view * peterModel);
-            peter.draw();
-
             // draw light
             auto lightModel = glm::translate(glm::mat4(1.f), lightPos);
             lightModel = glm::scale(lightModel, glm::vec3(.2f));
@@ -164,8 +160,8 @@ int main() {
             lightShader.setUniformMat4f("u_MVP", projection * view * lightModel);
             lightCube.draw();
         }
-        {
-            glDisable(GL_DEPTH_TEST);
+        { // draw 2d shit
+            GL::disableDepthTesting();
 
             auto projection2D = glm::ortho(0.0f, 960.0f, 0.0f, 540.0f, -1.0f, 1.0f);
             shader2D.bind();
@@ -173,17 +169,16 @@ int main() {
             shader2D.setUniformMat4f("mvp", projection2D);
             
             float hp = (sinf(Window::getTime() / 3) + 1.f) / 2.f;
-            // std::string percent = std::to_string(static_cast<int>(hp * 1000));
             std::ostringstream percent;
             percent << std::fixed << std::setprecision(1) << hp * 100 << "%";
             const auto str = percent.str();
-            float size = Renderer2D::measureText(str, 1.f);
+            float size = comicSans.measureText(str, 1.f);
 
             Renderer2D::beginBatch();
 
             Renderer2D::drawQuad({20.f, 20.f }, {350.f, 50.f}, {1.f, 0.f, 0.f, 1.f});
             Renderer2D::drawQuad({20.f, 20.f }, {hp * 350.f, 50.f}, {1.f, 1.f, 0.f, 1.f});
-            Renderer2D::drawText({20.f + (350.f - size) / 2, 28.5f}, str, 1.f, {1.f, 1.f, 1.f, 1.f});
+            Renderer2D::drawText({20.f + (350.f - size) / 2, 28.5f}, comicSans, str, 1.f, {0.f, 0.f, 0.f, 1.f});
 
             Renderer2D::endBatch();
             Renderer2D::render();
