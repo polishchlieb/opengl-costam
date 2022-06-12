@@ -5,20 +5,22 @@
 #include <sstream>
 #include <iostream>
 
-std::vector<Vertex> loadObj(const std::string& filePath) {
+Model loadObj(const std::string& filePath) {
     std::vector<glm::vec3> vertexPositions;
     std::vector<glm::vec2> vertexTexcoords;
     std::vector<glm::vec3> vertexNormals;
 
     std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+    std::unordered_map<std::string, unsigned int> cache;
 
-    std::ifstream file{filePath};
+    std::ifstream file{ filePath };
     if (!file.is_open())
         throw std::runtime_error("Couldn't open the file");
 
     std::string line;
     while (std::getline(file, line)) {
-        std::istringstream ss{line};
+        std::istringstream ss{ line };
 
         std::string prefix;
         ss >> prefix;
@@ -42,11 +44,16 @@ std::vector<Vertex> loadObj(const std::string& filePath) {
                 ss >> texCoordIndex; ss.ignore();
                 ss >> normalIndex;
 
+                std::string id = std::to_string(positionIndex) + "/" + std::to_string(texCoordIndex) + "/" + std::to_string(normalIndex);
+                
+                // it's the first face, it couldn't have been cached before
                 vertices.emplace_back(
                     vertexPositions[positionIndex - 1],
                     vertexTexcoords[texCoordIndex - 1],
                     vertexNormals[normalIndex - 1]
                 );
+                indices.push_back(vertices.size() - 1);
+                cache.insert({id, vertices.size() - 1});
             }
             break;
         }
@@ -55,7 +62,7 @@ std::vector<Vertex> loadObj(const std::string& filePath) {
     vertices.reserve(vertexPositions.size() * 2);
 
     while (std::getline(file, line)) {
-        std::istringstream ss{line};
+        std::istringstream ss{ line };
 
         std::string prefix;
         ss >> prefix;
@@ -69,14 +76,21 @@ std::vector<Vertex> loadObj(const std::string& filePath) {
             ss >> texCoordIndex; ss.ignore();
             ss >> normalIndex;
 
-            vertices.emplace_back(
-                vertexPositions[positionIndex - 1],
-                vertexTexcoords[texCoordIndex - 1],
-                vertexNormals[normalIndex - 1]
-            );
+            std::string id = std::to_string(positionIndex) + "/" + std::to_string(texCoordIndex) + "/" + std::to_string(normalIndex);
+            auto cachedIndex = cache.find(id);
+            if (cachedIndex != cache.end()) {
+                indices.push_back(cachedIndex->second);
+            } else {
+                vertices.emplace_back(
+                    vertexPositions[positionIndex - 1],
+                    vertexTexcoords[texCoordIndex - 1],
+                    vertexNormals[normalIndex - 1]
+                );
+                indices.push_back(vertices.size() - 1);
+                cache.insert({id, vertices.size() - 1});
+            }
         }
     }
 
-    // make sure it's not copied
-    return std::move(vertices);
+    return {vertices, indices};
 }

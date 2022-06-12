@@ -35,6 +35,10 @@ void Shader::bind() const {
     glUseProgram(program);
 }
 
+void Shader::setUniformFloat(const std::string& name, float value) {
+    glUniform1f(getUniformLocation(name), value);
+}
+
 void Shader::setUniformVec4(const std::string& name, float f0, float f1, float f2, float f3) {
     glUniform4f(getUniformLocation(name), f0, f1, f2, f3);
 }

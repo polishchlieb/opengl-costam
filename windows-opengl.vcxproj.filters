@@ -6,7 +6,6 @@
     <ClInclude Include="shader\ShaderComponent.hpp" />
     <ClInclude Include="event\Event.hpp" />
     <ClInclude Include="event\EventType.hpp" />
-    <ClInclude Include="Application.hpp" />
     <ClInclude Include="event\MouseMoveEvent.hpp" />
     <ClInclude Include="event\KeyPressedEvent.hpp" />
     <ClInclude Include="rendering\Font.hpp" />
@@ -30,12 +29,12 @@
     <ClInclude Include="rendering\Image.hpp" />
     <ClInclude Include="rendering\GL.hpp" />
     <ClInclude Include="scene\Light3D.hpp" />
+    <ClInclude Include="scene\Entity3D.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="shader\Shader.cpp" />
     <ClCompile Include="shader\ShaderComponent.cpp" />
-    <ClCompile Include="Application.cpp" />
     <ClCompile Include="rendering\Font.cpp" />
     <ClCompile Include="rendering\Texture.cpp" />
     <ClCompile Include="scene\Entity.cpp" />

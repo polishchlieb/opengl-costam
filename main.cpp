@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-#include "Application.hpp"
 #include "rendering/Window.hpp"
 #include "scene/Camera3D.hpp"
 
@@ -13,6 +12,9 @@
 #include "rendering/Mesh.hpp"
 #include "rendering/GL.hpp"
 #include "rendering/Renderer2D.hpp"
+
+#include "shader/Shader.hpp"
+#include "shader/ShaderComponent.hpp"
 
 #include <iomanip>
 
@@ -63,6 +65,7 @@ int main() {
     Renderer2D::init();
 
     ColorTexture whiteTexture{{1.f, 1.f, 1.f, 1.f}};
+    ColorTexture pinkTexture({{1.f, .75f, .6f, 1.f}});
     Texture chungusTexture{"res/meshes/chungus-1/chungus_TM_u0_v0.png"};
 
     Mesh chungus{"res/meshes/chungus-1/chungus.obj"};
@@ -128,7 +131,7 @@ int main() {
             camera.move(glm::normalize(glm::cross(camera.getFront(), camera.getUp())) * cameraSpeed);
 
         // update light position
-        lightPos.y = cos(Window::getTime()) * 4.5f + 5.5f;
+        // lightPos.y = cos(Window::getTime()) * 4.5f + 5.5f;
 
         // calculate matrices
         auto projection = glm::perspective(glm::radians(fov), Window::getAspectRatio(), .1f, 100.f);
@@ -144,20 +147,57 @@ int main() {
 
             // draw chungus
             shader.bind();
-            shader.setUniformVec3("lightColor", { 1.f, 1.f, 1.f });
+            // shader.setUniformVec3("lightColor", { 1.f, 1.f, 1.f });
             shader.setUniformVec3("lightPos", lightPos);
             shader.setUniformVec3("viewPos", camera.getPosition());
+
+            glm::vec3 lightColor{
+                1.f, 1.f, 1.f
+                // sin(Window::getTime() * 2.f),
+                // sin(Window::getTime() * .7f),
+                // sin(Window::getTime() * 1.3f)
+            };
+
+            auto diffuseColor = lightColor * glm::vec3{.5f};
+            auto ambientColor = lightColor * glm::vec3{.2f};
+
             chungusTexture.bind(0);
+
+            shader.setUniformSampler2D("material.diffuse", 0);
+            shader.setUniformVec3("material.specular", {.5f, .5f, .5f});
+            shader.setUniformFloat("material.shininess", 32.0f);
+
+            // https://learnopengl.com/Lighting/Light-casters
+            // https://learnopengl.com/Lighting/Multiple-lights
+
+            shader.setUniformVec3("light.ambient", ambientColor);
+            shader.setUniformVec3("light.diffuse", diffuseColor);
+            shader.setUniformVec3("light.specular", {1.f, 1.f, 1.f});
+
             shader.setUniformSampler2D("textureID", 0);
             shader.setUniformMat4f("model", chungusModel);
             shader.setUniformMat4f("u_MVP", projection * view * chungusModel);
             chungus.draw();
+
+            // draw peter griffin
+            shader.bind();
+            // shader.setUniformVec3("lightColor", { 1.f, 1.f, 1.f });
+            shader.setUniformVec3("lightPos", lightPos);
+            shader.setUniformVec3("viewPos", camera.getPosition());
+            pinkTexture.bind(1);
+            shader.setUniformSampler2D("material.diffuse", 1);
+            shader.setUniformSampler2D("textureID", 1);
+            shader.setUniformMat4f("model", peterModel);
+            shader.setUniformMat4f("u_MVP", projection * view * peterModel);
+            peter.draw();
+            //peter
 
             // draw light
             auto lightModel = glm::translate(glm::mat4(1.f), lightPos);
             lightModel = glm::scale(lightModel, glm::vec3(.2f));
             lightShader.bind();
             lightShader.setUniformMat4f("u_MVP", projection * view * lightModel);
+            lightShader.setUniformVec4("u_Color", lightColor[0], lightColor[1], lightColor[2], 1.f);
             lightCube.draw();
         }
         { // draw 2d shit

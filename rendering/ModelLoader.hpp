@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <glm/glm.hpp>
+#include <unordered_map>
 
 struct Vertex {
 	glm::vec3 position;
@@ -9,4 +10,9 @@ struct Vertex {
 	glm::vec3 normal;
 };
 
-std::vector<Vertex> loadObj(const std::string& filePath);
+struct Model {
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+};
+
+Model loadObj(const std::string& filePath);

@@ -10,7 +10,7 @@ public:
 
 	void draw();
 private:
-	unsigned int vao, vbo;
-	size_t vertexCount;
+	unsigned int vao, vbo, ibo;
+	size_t indexCount;
 	Texture* texture;
 };
